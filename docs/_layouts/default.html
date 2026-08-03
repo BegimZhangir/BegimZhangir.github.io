@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% include head.html %}
+  </head>
+  <body class="layout-common">
+    <a class="skip-link" href="#content">Skip to content</a>
+    {% include header.html %}
+    <main id="content" class="page-shell">
+      {% if page.eyebrow %}<p class="page-eyebrow">{{ page.eyebrow }}</p>{% endif %}
+      <article class="prose">
+        {{ content }}
+      </article>
+    </main>
+    {% include footer.html %}
+  </body>
+</html>

@@ -1,0 +1,38 @@
+---
+layout: home
+title: Home
+---
+
+<div class="home-intro">
+  <h1>{{ site.title }}</h1>
+</div>
+
+<nav class="portal-nav" aria-label="Explore the site">
+  <a class="portal-link" href="{{ '/about/' | relative_url }}">
+    <span class="portal-mark portal-mark-about" aria-hidden="true">A</span>
+    <span class="portal-copy">
+      <strong>About</strong>
+    </span>
+  </a>
+
+  <a class="portal-link" href="{{ '/portfolio/' | relative_url }}">
+    <span class="portal-mark portal-mark-portfolio" aria-hidden="true">P</span>
+    <span class="portal-copy">
+      <strong>Portfolio</strong>
+    </span>
+  </a>
+
+  <a class="portal-link" href="{{ '/blog/' | relative_url }}">
+    <span class="portal-mark portal-mark-blog" aria-hidden="true">B</span>
+    <span class="portal-copy">
+      <strong>Blog</strong>
+    </span>
+  </a>
+
+  <a class="portal-link" href="{{ '/miscellaneous/' | relative_url }}">
+    <span class="portal-mark portal-mark-misc" aria-hidden="true">M</span>
+    <span class="portal-copy">
+      <strong>Miscellaneous</strong>
+    </span>
+  </a>
+</nav>

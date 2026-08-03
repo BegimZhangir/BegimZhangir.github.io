@@ -1,0 +1,21 @@
+<footer class="site-footer">
+  <nav aria-label="Footer navigation">
+    <a href="{{ '/' | relative_url }}">Home</a>
+    <span aria-hidden="true">—</span>
+    <a href="{{ '/about/' | relative_url }}">About</a>
+    <span aria-hidden="true">—</span>
+    <a href="{{ '/portfolio/' | relative_url }}">Portfolio</a>
+    <span aria-hidden="true">—</span>
+    <a href="{{ '/blog/' | relative_url }}">Blog</a>
+    <span aria-hidden="true">—</span>
+    <a href="{{ '/miscellaneous/' | relative_url }}">Miscellaneous</a>
+    <span aria-hidden="true">—</span>
+    <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+  </nav>
+  <div class="footer-credit">
+    {% if page.layout == "home" %}
+      <p>Design inspired by <a href="https://borretti.me/">Fernando Borretti</a>.</p>
+    {% endif %}
+    <p>© {{ site.time | date: '%Y' }} {{ site.title }}</p>
+  </div>
+</footer>

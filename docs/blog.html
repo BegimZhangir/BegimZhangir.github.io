@@ -1,0 +1,40 @@
+---
+layout: default
+title: Blog
+permalink: /blog/
+eyebrow: Writing
+---
+
+<header class="page-intro">
+  <h1>Blog</h1>
+  <p><a href="{{ '/feed.xml' | relative_url }}">Subscribe via RSS</a>.</p>
+</header>
+
+{% assign category_names = "engineering|software|essays|notes" | split: "|" %}
+<div class="category-index">
+  {% for category_name in category_names %}
+    {% assign category_posts = site.categories[category_name] %}
+    <section class="post-section" id="{{ category_name }}">
+      <div class="section-heading">
+        <h2>{{ category_name | capitalize }}</h2>
+        <a href="#{{ category_name }}" aria-label="Link to {{ category_name }} section">#</a>
+      </div>
+
+      {% if category_posts and category_posts.size > 0 %}
+        <ol class="post-list">
+          {% for post in category_posts %}
+            <li>
+              <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+              <p>
+                <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%e %B, %Y" }}</time>
+                {% if post.excerpt %}<span aria-hidden="true"> · </span>{{ post.excerpt | strip_html | strip_newlines | truncate: 150 }}{% endif %}
+              </p>
+            </li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <p class="empty-state">No {{ category_name }} posts yet.</p>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

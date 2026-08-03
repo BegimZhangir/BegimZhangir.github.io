@@ -1,0 +1,14 @@
+<header class="site-header">
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="site-name" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <ul>
+      <li><a{% if page.url == '/about/' %} aria-current="page"{% endif %} href="{{ '/about/' | relative_url }}">About</a></li>
+      <li><span aria-hidden="true">—</span></li>
+      <li><a{% if page.url == '/portfolio/' %} aria-current="page"{% endif %} href="{{ '/portfolio/' | relative_url }}">Portfolio</a></li>
+      <li><span aria-hidden="true">—</span></li>
+      <li><a{% if page.url contains '/blog/' %} aria-current="page"{% endif %} href="{{ '/blog/' | relative_url }}">Blog</a></li>
+      <li><span aria-hidden="true">—</span></li>
+      <li><a{% if page.url == '/miscellaneous/' %} aria-current="page"{% endif %} href="{{ '/miscellaneous/' | relative_url }}">Miscellaneous</a></li>
+    </ul>
+  </nav>
+</header>
