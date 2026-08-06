@@ -1,15 +1,24 @@
 title: Zhangir Begim
 email: zhanrocks@gmail.com
 description: ""
+lang: en
 baseurl: ""
 url: "https://begim.net"
 repository: BegimZhangir/BegimZhangir.github.io
 github_username: BegimZhangir
 
+author:
+  name: Zhangir Begim
+  email: zhanrocks@gmail.com
+  uri: https://begim.net/about/
+
 permalink: /blog/:categories/:year/:month/:day/:title/
 
 plugins:
   - jekyll-feed
+
+feed:
+  path: feed.xml
 
 defaults:
   - scope:
