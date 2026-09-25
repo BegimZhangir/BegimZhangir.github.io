@@ -13,6 +13,11 @@ author:
   email: zhanrocks@gmail.com
   uri: https://begim.net/
 
+sass:
+  style: compressed
+
+theme: null
+
 plugins:
   - jekyll-redirect-from
 

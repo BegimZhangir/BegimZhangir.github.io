@@ -1,7 +1,15 @@
----
----
+/* begim.net: minimal dark theme with a single acid-green accent.
+   Inlined into every page by _includes/head.html. */
 
-/* begim.net: minimal dark theme with a single acid-green accent. */
+/* Archivo, self-hosted: trimmed to weights 400-800, widths 100-125% and Latin. */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400 800;
+  font-stretch: 100% 125%;
+  font-display: swap;
+  src: url("{{ '/assets/fonts/archivo.woff2' | relative_url }}") format("woff2");
+}
 
 :root {
   --bg: #0b0c0b;
