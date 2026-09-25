@@ -1,31 +1,19 @@
 title: Zhangir Begim
 email: zhanrocks@gmail.com
-description: ""
+instagram_username: zhangiraeroclub
+description: "Zhangir Begim, Mechanical Engineering student at The Hong Kong Polytechnic University."
 lang: en
 baseurl: ""
 url: "https://begim.net"
 repository: BegimZhangir/BegimZhangir.github.io
-github_username: BegimZhangir
 
 author:
   name: Zhangir Begim
   email: zhanrocks@gmail.com
-  uri: https://begim.net/about/
-
-permalink: /blog/:categories/:year/:month/:day/:title/
+  uri: https://begim.net/
 
 plugins:
-  - jekyll-feed
-
-feed:
-  path: feed.xml
-
-defaults:
-  - scope:
-      path: ""
-      type: posts
-    values:
-      layout: post
+  - jekyll-redirect-from
 
 exclude:
   - Gemfile

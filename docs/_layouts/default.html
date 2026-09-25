@@ -1,16 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ site.lang | default: 'en' }}">
   <head>
     {% include head.html %}
   </head>
-  <body class="layout-common">
+  <body>
     <a class="skip-link" href="#content">Skip to content</a>
-    {% include header.html %}
-    <main id="content" class="page-shell">
-      {% if page.eyebrow %}<p class="page-eyebrow">{{ page.eyebrow }}</p>{% endif %}
-      <article class="prose">
-        {{ content }}
-      </article>
+    {% unless page.url == "/" %}{% include header.html %}{% endunless %}
+    <main id="content" class="page">
+      {{ content }}
     </main>
     {% include footer.html %}
   </body>

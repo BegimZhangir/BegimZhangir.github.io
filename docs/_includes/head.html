@@ -1,8 +1,17 @@
+{% assign page_description = page.description | default: site.description %}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
-<title>{% if page.title and page.title != "Home" %}{{ page.title | escape }} · {% endif %}{{ site.title | escape }}</title>
-{% if page.excerpt %}<meta name="description" content="{{ page.excerpt | strip_html | strip_newlines | escape }}">{% endif %}
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0c0b">
+<title>{% if page.title and page.url != "/" %}{{ page.title | escape }} · {% endif %}{{ site.title | escape }}</title>
+<meta name="description" content="{{ page_description | escape }}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ site.title | escape }}">
+<meta property="og:description" content="{{ page_description | escape }}">
+<meta property="og:url" content="{{ page.url | absolute_url }}">
 <link rel="canonical" href="{{ page.url | absolute_url }}">
+<link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-{% feed_meta %}
