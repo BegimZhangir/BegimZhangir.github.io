@@ -1,38 +1,41 @@
 ---
-layout: home
+layout: default
 title: Home
+permalink: /
+redirect_from:
+  - /about/
 ---
 
-<div class="home-intro">
-  <h1>{{ site.title }}</h1>
-</div>
+<header class="intro">
+  <h1 class="name">Zhangir <span>Begim</span></h1>
 
-<nav class="portal-nav" aria-label="Explore the site">
-  <a class="portal-link" href="{{ '/about/' | relative_url }}">
-    <span class="portal-mark portal-mark-about" aria-hidden="true">A</span>
-    <span class="portal-copy">
-      <strong>About</strong>
-    </span>
-  </a>
+  {% if site.data.navigation %}
+  <nav class="sections" aria-label="Sections">
+    {% for item in site.data.navigation %}
+    <a class="button" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+</header>
 
-  <a class="portal-link" href="{{ '/portfolio/' | relative_url }}">
-    <span class="portal-mark portal-mark-portfolio" aria-hidden="true">P</span>
-    <span class="portal-copy">
-      <strong>Portfolio</strong>
-    </span>
-  </a>
+<section class="block" aria-labelledby="about">
+  <h2 class="label" id="about">About</h2>
+  <p>
+    I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
+    My interests include automotive and aerospace engineering.
+  </p>
+</section>
 
-  <a class="portal-link" href="{{ '/blog/' | relative_url }}">
-    <span class="portal-mark portal-mark-blog" aria-hidden="true">B</span>
-    <span class="portal-copy">
-      <strong>Blog</strong>
-    </span>
-  </a>
-
-  <a class="portal-link" href="{{ '/miscellaneous/' | relative_url }}">
-    <span class="portal-mark portal-mark-misc" aria-hidden="true">M</span>
-    <span class="portal-copy">
-      <strong>Miscellaneous</strong>
-    </span>
-  </a>
-</nav>
+<section class="block" aria-labelledby="contact">
+  <h2 class="label" id="contact">Contact</h2>
+  <dl class="contact">
+    <div>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
+    </div>
+    <div>
+      <dt>Instagram</dt>
+      <dd><a href="https://www.instagram.com/{{ site.instagram_username }}/">@{{ site.instagram_username }}</a></dd>
+    </div>
+  </dl>
+</section>

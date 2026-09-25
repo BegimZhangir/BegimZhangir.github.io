@@ -1,0 +1,10 @@
+# Buttons shown on the home page, under your name.
+# Nothing is shown while this list is empty.
+#
+# To add a section, create a page (e.g. fiction.md with `layout: page` and
+# `permalink: /fiction/`), then uncomment and edit an entry below:
+#
+# - title: Fiction
+#   url: /fiction/
+# - title: Portfolio
+#   url: /portfolio/
