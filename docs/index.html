@@ -6,34 +6,32 @@ redirect_from:
   - /about/
 ---
 
-<div class="prose">
-  <h1 class="home-title">Zhangir Begim</h1>
+<div class="home">
+  <h1 class="name caps">Zhangir Begim</h1>
 
   {% if site.data.navigation %}
-  <nav class="media-nav" aria-label="Sections">
-    <ul>
+  <nav aria-label="Sections">
+    <ul class="sections caps">
       {% for item in site.data.navigation %}
-      <li>
-        <a href="{{ item.url | relative_url }}">
-          {% if item.icon %}<img src="{{ item.icon | relative_url }}" alt="" width="96" height="96" decoding="async">{% endif %}
-          <span>{{ item.title }}</span>
-        </a>
-      </li>
+      <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
       {% endfor %}
     </ul>
   </nav>
   {% endif %}
 
-  <h2 id="about">About</h2>
+  <h2 class="caps" id="about">About</h2>
   <p>
     I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
     My interests include automotive and aerospace engineering.
   </p>
 
-  <h2 id="contact">Contact</h2>
-  <ul>
-    <li>Email: <a href="mailto:{{ site.email }}"><code>{{ site.email }}</code></a></li>
-    <li>Instagram: <a href="https://www.instagram.com/{{ site.instagram_username }}/"><code>@{{ site.instagram_username }}</code></a></li>
-    <li>YouTube: <a href="https://www.youtube.com/@{{ site.youtube_handle }}"><code>@{{ site.youtube_handle }}</code></a></li>
-  </ul>
+  <h2 class="caps" id="contact">Contact</h2>
+  <dl class="contact">
+    <dt>Email</dt>
+    <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
+    <dt>Instagram</dt>
+    <dd><a href="https://www.instagram.com/{{ site.instagram_username }}/">@{{ site.instagram_username }}</a></dd>
+    <dt>YouTube</dt>
+    <dd><a href="https://www.youtube.com/@{{ site.youtube_handle }}">@{{ site.youtube_handle }}</a></dd>
+  </dl>
 </div>
