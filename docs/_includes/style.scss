@@ -1,5 +1,7 @@
 /* begim.net: engineering-notebook style. Warm paper, ink-blue links,
    small-caps headings, and a drawing title block as the footer.
+   On phones it is a single column; on desktop the page becomes a framed
+   drawing sheet with labelled rows and the title block in the corner.
    System fonts only; inlined into every page by _includes/head.html. */
 
 :root {
@@ -11,6 +13,8 @@
   --frame: #a8a398;
   --accent: #1f4f9a;
   --measure: 38rem;
+  --label: 13rem;
+  --gap: 48px;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "URW Palladio L", P052, "Book Antiqua", Georgia, serif;
 }
 
@@ -37,9 +41,6 @@ html {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
   margin: 0;
   background: var(--paper);
   color: var(--ink);
@@ -75,6 +76,7 @@ a:hover {
   position: absolute;
   top: 8px;
   left: 8px;
+  z-index: 1;
   padding: 4px 8px;
   background: var(--paper);
   border: 1px solid var(--ink);
@@ -85,7 +87,13 @@ a:hover {
   transform: none;
 }
 
-/* ---------- Frame ---------- */
+/* ---------- Sheet (page frame) ---------- */
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
 main,
 .top-nav,
@@ -120,7 +128,7 @@ main {
   color: var(--accent);
 }
 
-/* Footer: a technical-drawing title block */
+/* ---------- Footer: technical-drawing title block ---------- */
 
 .site-footer {
   padding-bottom: 32px;
@@ -128,10 +136,9 @@ main {
 
 .title-block {
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  width: max-content;
-  max-width: 100%;
-  margin: 0 0 0 auto;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  margin: 0;
   border: 1px solid var(--frame);
   font-size: 0.875rem;
   line-height: 1.35;
@@ -142,7 +149,12 @@ main {
   padding: 6px 12px 8px;
 }
 
-.title-block div + div {
+.title-block div:first-child {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid var(--frame);
+}
+
+.title-block div:last-child {
   border-left: 1px solid var(--frame);
 }
 
@@ -179,9 +191,12 @@ main {
   counter-reset: section;
 }
 
-.home h2 {
-  position: relative;
-  margin: 56px 0 12px;
+.sec {
+  margin-top: 56px;
+}
+
+.sec h2 {
+  margin: 0 0 12px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--rule);
   font-size: 1.125rem;
@@ -189,7 +204,7 @@ main {
   line-height: 1.3;
 }
 
-.home h2::before {
+.sec h2::before {
   counter-increment: section;
   content: counter(section);
   display: inline-block;
@@ -199,7 +214,7 @@ main {
   letter-spacing: 0;
 }
 
-.home p {
+.sec p {
   margin: 0;
 }
 
@@ -217,15 +232,6 @@ main {
 .contact dd {
   margin: 0;
   overflow-wrap: anywhere;
-}
-
-@media (min-width: 52rem) {
-  /* Hang section numbers in the left margin */
-  .home h2::before {
-    position: absolute;
-    left: -2.25em;
-    width: auto;
-  }
 }
 
 /* ---------- Content pages (Fiction, Portfolio, ...) ---------- */
@@ -287,22 +293,128 @@ main {
   border-top: 1px solid var(--frame);
 }
 
-@media (max-width: 30rem) {
+/* ---------- Desktop: framed drawing sheet ---------- */
+
+@media (min-width: 60rem) {
+  body {
+    padding: 24px;
+    font-size: 1.1875rem;
+  }
+
+  .sheet {
+    max-width: 1400px;
+    min-height: calc(100vh - 48px);
+    margin: 0 auto;
+    border: 1px solid var(--frame);
+  }
+
+  main,
+  .top-nav,
+  .site-footer {
+    max-width: none;
+    margin: 0;
+    padding-right: 72px;
+    padding-left: 72px;
+  }
+
+  main {
+    padding-top: clamp(64px, 12vh, 128px);
+    padding-bottom: 96px;
+  }
+
+  .top-nav {
+    padding-top: 40px;
+  }
+
+  .top-nav + main {
+    padding-top: 64px;
+  }
+
+  /* Title block sits in the sheet's bottom-right corner, sharing its border */
+  .site-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0;
+  }
+
   .title-block {
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
+    grid-template-columns: repeat(3, auto);
+    width: auto;
+    border-width: 1px 0 0 1px;
+  }
+
+  .title-block div {
+    padding: 8px 16px 10px;
   }
 
   .title-block div:first-child {
-    grid-column: 1 / -1;
+    grid-column: auto;
+    border-bottom: 0;
   }
 
-  .title-block div:nth-child(2) {
-    border-top: 1px solid var(--frame);
-    border-left: 0;
+  .title-block div + div {
+    border-left: 1px solid var(--frame);
   }
 
-  .title-block div:nth-child(3) {
-    border-top: 1px solid var(--frame);
+  .name {
+    font-size: 3.75rem;
+  }
+
+  .sections {
+    margin-top: 20px;
+  }
+
+  /* Each section is a row: numbered label on the left, text on the right */
+  .sec {
+    display: grid;
+    grid-template-columns: var(--label) minmax(0, var(--measure));
+    gap: 0 var(--gap);
+    margin-top: 72px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    max-width: calc(var(--label) + var(--gap) + var(--measure));
+  }
+
+  .sec h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sec h2::before {
+    width: 2em;
+  }
+
+  /* Content pages line up with the home page's text column */
+  main > .prose {
+    max-width: calc(var(--label) + var(--gap) + var(--measure));
+    padding-left: calc(var(--label) + var(--gap));
+  }
+}
+
+/* Large screens: scale the type and columns up to fill the sheet */
+@media (min-width: 80rem) {
+  :root {
+    --measure: 44rem;
+    --label: 17rem;
+    --gap: 64px;
+  }
+
+  body {
+    font-size: 1.3125rem;
+  }
+
+  main,
+  .top-nav {
+    padding-right: 96px;
+    padding-left: 96px;
+  }
+
+  .name {
+    font-size: 4.5rem;
+  }
+
+  .sec {
+    margin-top: 88px;
   }
 }
