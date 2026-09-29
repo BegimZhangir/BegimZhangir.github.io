@@ -122,26 +122,36 @@ main {
 .topbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 4px 24px;
-  padding: clamp(10px, 2vh, 22px) 0 clamp(8px, 1.4vh, 14px);
+  padding: clamp(6px, 1.4vh, 18px) 0 clamp(6px, 1.1vh, 12px);
   border-bottom: 2px dotted var(--ink);
 }
 
 .topnav {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 24px;
+  gap: 6px 8px;
   padding: 0;
   list-style: none;
   text-transform: uppercase;
 }
 
-.topnav a[aria-current="page"] {
+/* Section links are ruled buttons; the current page's is filled in */
+.topnav a {
+  display: inline-block;
+  padding: 2px 12px;
+  border: var(--line) solid var(--ink);
   color: var(--ink);
+  line-height: 1.4;
   text-decoration: none;
-  pointer-events: none;
+}
+
+.topnav a:hover,
+.topnav a[aria-current="page"] {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .docref {
