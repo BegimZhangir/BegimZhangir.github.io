@@ -1,0 +1,26 @@
+{% comment %}
+  Important posts, from _data/important.yml (newest first).
+  include.limit: number of rows to show (default: all).
+{% endcomment %}
+{% assign rows = site.data.important %}
+{% if include.limit and rows %}{% assign rows = rows | slice: 0, include.limit %}{% endif %}
+<table class="revtable">
+  <thead>
+    <tr><th scope="col">Section</th><th scope="col">Name</th><th scope="col">Date</th></tr>
+  </thead>
+  <tbody>
+    {% for post in rows %}
+    <tr>
+      <td>{{ post.section }}</td>
+      <td><a href="{{ post.url | relative_url }}">{{ post.name }}</a></td>
+      <td class="nowrap">{{ post.date }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td>—</td>
+      <td class="empty">No posts yet.</td>
+      <td>—</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

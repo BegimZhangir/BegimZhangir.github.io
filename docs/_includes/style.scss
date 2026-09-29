@@ -1,7 +1,7 @@
 /* begim.net: engineering data sheet.
    A 1960s-80s engineering catalogue page: cream stock, black ink, monospace
-   type, ruled data cells, a dimensioned figure, a revision block and a
-   printer's colour bar. Dark mode prints the same sheet in white on black.
+   type, ruled data cells, a dimensioned figure, an important-posts block
+   and a printer's colour bar. Dark mode prints the same sheet in white on black.
 
    System fonts only; inlined into every page by _includes/head.html.
    Vertical spacing scales with viewport height so the home sheet fits on
@@ -117,7 +117,7 @@ main {
   padding: var(--vgap) 0;
 }
 
-/* Top bar: brand left, document reference right, dotted rule under */
+/* Top bar: section links left, document reference right, dotted rule under */
 
 .topbar {
   display: flex;
@@ -129,27 +129,10 @@ main {
   border-bottom: 2px dotted var(--ink);
 }
 
-.topbar-left {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 28px;
-}
-
-.brand {
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 1.05em;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
 .topnav {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 20px;
+  gap: 4px 24px;
   padding: 0;
   list-style: none;
   text-transform: uppercase;
@@ -158,6 +141,7 @@ main {
 .topnav a[aria-current="page"] {
   color: var(--ink);
   text-decoration: none;
+  pointer-events: none;
 }
 
 .docref {
@@ -168,21 +152,7 @@ main {
   font-size: 0.85em;
 }
 
-/* Title row: stacked label + large monospace title + affiliation */
-
-.titlerow {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 4px clamp(14px, 2vw, 28px);
-}
-
-.stack {
-  font-size: 1.05em;
-  line-height: 1.2;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
+/* Title row: large monospace title */
 
 .bigname {
   font-size: clamp(2.1rem, 9.5vw, 3.6rem);
@@ -190,14 +160,6 @@ main {
   line-height: 1;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-}
-
-.affil {
-  grid-column: 1 / -1;
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 0.95em;
-  line-height: 1.35;
 }
 
 /* Ruled data table */
@@ -356,6 +318,10 @@ main {
   white-space: nowrap;
 }
 
+.revtable .empty {
+  color: var(--muted);
+}
+
 .more {
   margin-top: 0.5em;
   text-transform: uppercase;
@@ -437,19 +403,15 @@ main {
   border-top: 2px dotted var(--ink);
 }
 
-/* Short phone screens: drop the Fields cell (it restates About) and show
-   only the current revision, so the home sheet still fits on one screen */
+/* Short phone screens: show only the newest important post, so the home
+   sheet still fits on one screen */
 @media (max-width: 39.99rem) and (max-height: 58rem) {
-  .cell-fields {
-    display: none;
-  }
-
   .revblock .revtable tbody tr:nth-child(n + 2) {
     display: none;
   }
 }
 
-/* Very short phones: the revision is still shown in the top bar */
+/* Very short phones: hide the posts box (the sections stay in the top bar) */
 @media (max-width: 39.99rem) and (max-height: 40rem) {
   body {
     font-size: 12px;
@@ -471,16 +433,13 @@ main {
 /* ---------- Tablet and up ---------- */
 
 @media (min-width: 40rem) {
-  /* Tablet: About across the top, Fields and Contact side by side */
+  /* About and Contact side by side */
   .datatable {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   }
 
-  .cell-about {
-    grid-column: 1 / -1;
-  }
-
-  .datatable .cell:last-child {
+  .datatable .cell + .cell {
+    border-top: 0;
     border-left: var(--line) solid var(--rule);
   }
 }
@@ -500,41 +459,8 @@ main {
 /* ---------- Desktop ---------- */
 
 @media (min-width: 60rem) {
-  .titlerow {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: end;
-  }
-
-  /* Desktop: three data cells in one row */
-  .datatable {
-    grid-template-columns: 1.4fr 1fr 1.2fr;
-  }
-
-  .cell-about {
-    grid-column: auto;
-  }
-
-  .datatable .cell + .cell {
-    border-top: 0;
-    border-left: var(--line) solid var(--rule);
-  }
-
-  .stack {
-    padding-bottom: 0.35em;
-  }
-
   .bigname {
     font-size: clamp(3rem, calc(5.6vw + 1vh), 7.5rem);
-  }
-
-  .titlerow-page .bigname {
-    font-size: clamp(2.5rem, calc(4vw + 1vh), 5rem);
-  }
-
-  .affil {
-    grid-column: auto;
-    padding-bottom: 0.45em;
-    text-align: right;
   }
 
   /* Home sheet: spread any spare height evenly between the rows */

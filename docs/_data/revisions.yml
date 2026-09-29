@@ -11,7 +11,7 @@
 
 - rev: "5.0"
   date: "2026-09-29"
-  description: Engineering data-sheet redesign with revision history
+  description: Engineering data-sheet redesign; important posts; revision history page
   pr: 6
 - rev: "4.1"
   date: "2026-09-29"

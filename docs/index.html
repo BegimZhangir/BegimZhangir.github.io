@@ -7,9 +7,7 @@ redirect_from:
 ---
 
 <header class="titlerow">
-  <p class="stack" aria-hidden="true">Personal<br>data<br>sheet</p>
   <h1 class="bigname">Zhangir Begim</h1>
-  <p class="affil">Mechanical Engineering Student<br>The Hong Kong Polytechnic University</p>
 </header>
 
 <div class="datatable">
@@ -19,13 +17,6 @@ redirect_from:
       I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
       My interests include automotive and aerospace engineering.
     </p>
-  </section>
-  <section class="cell cell-fields" aria-labelledby="fields">
-    <h2 id="fields">Fields of interest:</h2>
-    <ol class="numbered">
-      <li>Automotive engineering</li>
-      <li>Aerospace engineering</li>
-    </ol>
   </section>
   <section class="cell" aria-labelledby="contact">
     <h2 id="contact">Contact:</h2>
@@ -45,9 +36,8 @@ redirect_from:
     {% include airfoil.svg %}
     <figcaption id="fig1-cap">Fig. 1 — NACA 2412 airfoil section</figcaption>
   </figure>
-  <section class="revblock" aria-labelledby="revisions">
-    <h2 id="revisions">Revisions:</h2>
-    {% include revision-table.html limit=3 %}
-    <p class="more"><a href="{{ '/revisions/' | relative_url }}">Full revision history →</a></p>
+  <section class="revblock" aria-labelledby="important">
+    <h2 id="important">Important posts:</h2>
+    {% include important-table.html limit=3 %}
   </section>
 </div>
