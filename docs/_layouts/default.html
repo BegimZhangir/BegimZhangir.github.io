@@ -6,7 +6,7 @@
   <body>
     <a class="skip-link" href="#content">Skip to content</a>
     {% unless page.url == "/" %}{% include header.html %}{% endunless %}
-    <main id="content" class="page">
+    <main id="content">
       {{ content }}
     </main>
     {% include footer.html %}

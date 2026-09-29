@@ -1,10 +1,13 @@
-# Buttons shown on the home page, under your name.
+# Links shown on the home page under your name, and in the footer.
 # Nothing is shown while this list is empty.
 #
 # To add a section, create a page (e.g. fiction.md with `layout: page` and
-# `permalink: /fiction/`), then uncomment and edit an entry below:
+# `permalink: /fiction/`), then uncomment and edit an entry below.
+# `icon` is optional: a small square image shown beside the link. Keep it
+# tiny (a ~10 KB .webp) so the home page stays fast.
 #
 # - title: Fiction
 #   url: /fiction/
+#   icon: /assets/icons/fiction.webp
 # - title: Portfolio
 #   url: /portfolio/

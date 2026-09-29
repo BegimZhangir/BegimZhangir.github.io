@@ -1,3 +1,15 @@
 <footer class="site-footer">
-  <p>© {{ site.time | date: '%Y' }} {{ site.title }}</p>
+  <div class="footer-content">
+    {% if site.data.navigation %}
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="{{ '/' | relative_url }}">Home</a></li>
+        {% for item in site.data.navigation %}
+        <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+    <p>© {{ site.time | date: '%Y' }} {{ site.title }}</p>
+  </div>
 </footer>

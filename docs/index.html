@@ -6,40 +6,34 @@ redirect_from:
   - /about/
 ---
 
-<header class="intro">
-  <h1 class="name">Zhangir <span>Begim</span></h1>
+<div class="prose">
+  <h1 class="home-title">Zhangir Begim</h1>
 
   {% if site.data.navigation %}
-  <nav class="sections" aria-label="Sections">
-    {% for item in site.data.navigation %}
-    <a class="button" href="{{ item.url | relative_url }}">{{ item.title }}</a>
-    {% endfor %}
+  <nav class="media-nav" aria-label="Sections">
+    <ul>
+      {% for item in site.data.navigation %}
+      <li>
+        <a href="{{ item.url | relative_url }}">
+          {% if item.icon %}<img src="{{ item.icon | relative_url }}" alt="" width="96" height="96" decoding="async">{% endif %}
+          <span>{{ item.title }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
   </nav>
   {% endif %}
-</header>
 
-<section class="block" aria-labelledby="about">
-  <h2 class="label" id="about">About</h2>
+  <h2 id="about">About</h2>
   <p>
     I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
     My interests include automotive and aerospace engineering.
   </p>
-</section>
 
-<section class="block" aria-labelledby="contact">
-  <h2 class="label" id="contact">Contact</h2>
-  <dl class="contact">
-    <div>
-      <dt>Email</dt>
-      <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
-    </div>
-    <div>
-      <dt>Instagram</dt>
-      <dd><a href="https://www.instagram.com/{{ site.instagram_username }}/">@{{ site.instagram_username }}</a></dd>
-    </div>
-    <div>
-      <dt>YouTube</dt>
-      <dd><a href="https://www.youtube.com/@{{ site.youtube_handle }}">@{{ site.youtube_handle }}</a></dd>
-    </div>
-  </dl>
-</section>
+  <h2 id="contact">Contact</h2>
+  <ul>
+    <li>Email: <a href="mailto:{{ site.email }}"><code>{{ site.email }}</code></a></li>
+    <li>Instagram: <a href="https://www.instagram.com/{{ site.instagram_username }}/"><code>@{{ site.instagram_username }}</code></a></li>
+    <li>YouTube: <a href="https://www.youtube.com/@{{ site.youtube_handle }}"><code>@{{ site.youtube_handle }}</code></a></li>
+  </ul>
+</div>
