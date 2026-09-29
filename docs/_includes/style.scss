@@ -2,6 +2,8 @@
    small-caps headings, and a drawing title block as the footer.
    On phones it is a single column; on desktop the page becomes a framed
    drawing sheet with labelled rows and the title block in the corner.
+   Vertical spacing scales with screen height so the whole home page,
+   title block included, fits on screen without scrolling.
    System fonts only; inlined into every page by _includes/head.html. */
 
 :root {
@@ -93,6 +95,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 main,
@@ -107,8 +110,8 @@ main,
 
 main {
   flex: 1;
-  padding-top: clamp(48px, 12vh, 112px);
-  padding-bottom: 80px;
+  padding-top: clamp(20px, 6vh, 96px);
+  padding-bottom: clamp(16px, 4vh, 64px);
 }
 
 .top-nav {
@@ -131,12 +134,12 @@ main {
 /* ---------- Footer: technical-drawing title block ---------- */
 
 .site-footer {
-  padding-bottom: 32px;
+  padding-bottom: clamp(12px, 3vh, 32px);
 }
 
 .title-block {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto auto;
   width: 100%;
   margin: 0;
   border: 1px solid var(--frame);
@@ -149,12 +152,7 @@ main {
   padding: 6px 12px 8px;
 }
 
-.title-block div:first-child {
-  grid-column: 1 / -1;
-  border-bottom: 1px solid var(--frame);
-}
-
-.title-block div:last-child {
+.title-block div + div {
   border-left: 1px solid var(--frame);
 }
 
@@ -192,7 +190,7 @@ main {
 }
 
 .sec {
-  margin-top: 56px;
+  margin-top: clamp(20px, 5vh, 56px);
 }
 
 .sec h2 {
@@ -293,17 +291,38 @@ main {
   border-top: 1px solid var(--frame);
 }
 
+/* Very short phone screens: slightly smaller type so the page still fits */
+@media (max-width: 59.99rem) and (max-height: 35rem) {
+  body {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .name {
+    font-size: 1.875rem;
+  }
+
+  .sec h2 {
+    margin-bottom: 8px;
+  }
+}
+
 /* ---------- Desktop: framed drawing sheet ---------- */
 
 @media (min-width: 60rem) {
+  :root {
+    --pad: clamp(12px, 2.5vh, 24px);
+  }
+
   body {
-    padding: 24px;
+    padding: var(--pad);
     font-size: 1.1875rem;
   }
 
   .sheet {
     max-width: 1400px;
-    min-height: calc(100vh - 48px);
+    min-height: calc(100vh - 2 * var(--pad));
+    min-height: calc(100dvh - 2 * var(--pad));
     margin: 0 auto;
     border: 1px solid var(--frame);
   }
@@ -318,16 +337,16 @@ main {
   }
 
   main {
-    padding-top: clamp(64px, 12vh, 128px);
-    padding-bottom: 96px;
+    padding-top: clamp(32px, 9vh, 128px);
+    padding-bottom: clamp(24px, 5vh, 96px);
   }
 
   .top-nav {
-    padding-top: 40px;
+    padding-top: clamp(20px, 4vh, 40px);
   }
 
   .top-nav + main {
-    padding-top: 64px;
+    padding-top: clamp(24px, 6vh, 64px);
   }
 
   /* Title block sits in the sheet's bottom-right corner, sharing its border */
@@ -347,17 +366,8 @@ main {
     padding: 8px 16px 10px;
   }
 
-  .title-block div:first-child {
-    grid-column: auto;
-    border-bottom: 0;
-  }
-
-  .title-block div + div {
-    border-left: 1px solid var(--frame);
-  }
-
   .name {
-    font-size: 3.75rem;
+    font-size: clamp(2.75rem, 8vh, 3.75rem);
   }
 
   .sections {
@@ -369,7 +379,7 @@ main {
     display: grid;
     grid-template-columns: var(--label) minmax(0, var(--measure));
     gap: 0 var(--gap);
-    margin-top: 72px;
+    margin-top: clamp(24px, 6vh, 72px);
     padding-top: 16px;
     border-top: 1px solid var(--rule);
     max-width: calc(var(--label) + var(--gap) + var(--measure));
@@ -392,8 +402,9 @@ main {
   }
 }
 
-/* Large screens: scale the type and columns up to fill the sheet */
-@media (min-width: 80rem) {
+/* Large screens: scale the type and columns up to fill the sheet,
+   but only when there is enough height for it */
+@media (min-width: 80rem) and (min-height: 50rem) {
   :root {
     --measure: 44rem;
     --label: 17rem;
@@ -411,10 +422,10 @@ main {
   }
 
   .name {
-    font-size: 4.5rem;
+    font-size: clamp(3.75rem, 8vh, 4.5rem);
   }
 
   .sec {
-    margin-top: 88px;
+    margin-top: clamp(48px, 7vh, 88px);
   }
 }

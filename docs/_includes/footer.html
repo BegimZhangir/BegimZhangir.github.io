@@ -1,12 +1,8 @@
 {% comment %}
-  Footer styled as a technical-drawing title block. The home page is sheet 1;
-  each entry in _data/navigation.yml is the next sheet, in list order.
+  Footer styled as a technical-drawing title block.
+  Sheet: the page's `sheet` front matter, or its title ("Home" on the home page).
+  Rev.:  the page's `revision` front matter, or `revision` in _config.yml.
 {% endcomment %}
-{% assign sheet_total = site.data.navigation | size | plus: 1 %}
-{% assign sheet = 1 %}
-{% for item in site.data.navigation %}
-  {% if page.url == item.url %}{% assign sheet = forloop.index | plus: 1 %}{% endif %}
-{% endfor %}
 <footer class="site-footer">
   <dl class="title-block">
     <div>
@@ -15,11 +11,11 @@
     </div>
     <div>
       <dt class="caps">Sheet</dt>
-      <dd>{{ sheet }} of {{ sheet_total }}</dd>
+      <dd>{{ page.sheet | default: page.title }}</dd>
     </div>
     <div>
       <dt class="caps">Rev.</dt>
-      <dd>{{ site.time | date: '%Y-%m-%d' }}</dd>
+      <dd>{{ page.revision | default: site.revision }}</dd>
     </div>
   </dl>
 </footer>
