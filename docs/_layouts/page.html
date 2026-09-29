@@ -2,7 +2,10 @@
 layout: default
 ---
 
-<article class="prose">
-  <h1>{{ page.title | escape }}</h1>
+<header class="titlerow">
+  <h1 class="bigname">{{ page.title | escape }}</h1>
+</header>
+
+<article class="cell prose">
   {{ content }}
 </article>

@@ -6,42 +6,38 @@ redirect_from:
   - /about/
 ---
 
-<div class="home">
-  <header class="masthead">
-    <h1 class="name caps">Zhangir Begim</h1>
+<header class="titlerow">
+  <h1 class="bigname">Zhangir Begim</h1>
+</header>
 
-    {% if site.data.navigation %}
-    <nav aria-label="Sections">
-      <ul class="sections caps">
-        {% for item in site.data.navigation %}
-        <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
-        {% endfor %}
-      </ul>
-    </nav>
-    {% endif %}
-  </header>
-
-  <section class="sec" aria-labelledby="about">
-    <h2 class="caps" id="about">About</h2>
-    <div class="sec-body">
-      <p>
-        I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
-        My interests include automotive and aerospace engineering.
-      </p>
-    </div>
+<div class="datatable">
+  <section class="cell cell-about" aria-labelledby="about">
+    <h2 id="about">About:</h2>
+    <p class="prose-cell">
+      I am a Mechanical Engineering student at The Hong Kong Polytechnic University.
+      My interests include automotive and aerospace engineering.
+    </p>
   </section>
+  <section class="cell" aria-labelledby="contact">
+    <h2 id="contact">Contact:</h2>
+    <dl class="kv">
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
+      <dt>Instagram</dt>
+      <dd><a href="https://www.instagram.com/{{ site.instagram_username }}/">@{{ site.instagram_username }}</a></dd>
+      <dt>YouTube</dt>
+      <dd><a href="https://www.youtube.com/@{{ site.youtube_handle }}">@{{ site.youtube_handle }}</a></dd>
+    </dl>
+  </section>
+</div>
 
-  <section class="sec" aria-labelledby="contact">
-    <h2 class="caps" id="contact">Contact</h2>
-    <div class="sec-body">
-      <dl class="contact">
-        <dt>Email</dt>
-        <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
-        <dt>Instagram</dt>
-        <dd><a href="https://www.instagram.com/{{ site.instagram_username }}/">@{{ site.instagram_username }}</a></dd>
-        <dt>YouTube</dt>
-        <dd><a href="https://www.youtube.com/@{{ site.youtube_handle }}">@{{ site.youtube_handle }}</a></dd>
-      </dl>
-    </div>
+<div class="lower">
+  <figure class="fig">
+    {% include airfoil.svg %}
+    <figcaption id="fig1-cap">Fig. 1 — NACA 2412 airfoil section</figcaption>
+  </figure>
+  <section class="revblock" aria-labelledby="important">
+    <h2 id="important">Important posts:</h2>
+    {% include important-table.html limit=3 %}
   </section>
 </div>

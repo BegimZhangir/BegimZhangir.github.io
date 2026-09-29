@@ -1,0 +1,13 @@
+# Important posts, shown on the home page (newest first; the first 3 appear).
+# The box shows "No posts yet." while this list is empty.
+#
+# Each entry:
+#   section: the section it was posted in (e.g. Fiction, Blog, Portfolio)
+#   name:    the post's title
+#   url:     its address on this site, e.g. /fiction/the-last-launch/
+#   date:    "YYYY-MM-DD"
+#
+# - section: Fiction
+#   name: The Last Launch
+#   url: /fiction/the-last-launch/
+#   date: "2026-10-01"

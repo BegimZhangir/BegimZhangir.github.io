@@ -1,0 +1,47 @@
+# Revision history of begim.net, newest first.
+#
+# The FIRST entry is the current revision: it is what every page shows as
+# "REV". Add a new entry at the top for every change published to gh-pages.
+#
+# Numbering, as on an engineering drawing:
+#   major (X.0) - a full redesign of the site
+#   minor (X.Y) - any other change published within the current design
+#
+# `pr` is the GitHub pull request number, when the change came through one.
+
+- rev: "5.0"
+  date: "2026-09-29"
+  description: Engineering data-sheet redesign; important posts; revision history page
+  pr: 6
+- rev: "4.1"
+  date: "2026-09-29"
+  description: Home page fits on screen without scrolling
+  pr: 5
+- rev: "4.0"
+  date: "2026-09-29"
+  description: Engineering-notebook redesign in system serif fonts
+  pr: 4
+- rev: "3.2"
+  date: "2026-09-25"
+  description: Self-hosted trimmed web font; CSS inlined
+  pr: 3
+- rev: "3.1"
+  date: "2026-09-25"
+  description: YouTube channel added to contact
+  pr: 2
+- rev: "3.0"
+  date: "2026-09-25"
+  description: Minimal single-page redesign; empty pages removed
+  pr: 1
+- rev: "2.2"
+  date: "2026-08-06"
+  description: RSS feed metadata improved
+- rev: "2.1"
+  date: "2026-08-05"
+  description: Custom domain begim.net configured
+- rev: "2.0"
+  date: "2026-08-03"
+  description: Custom editorial portfolio design
+- rev: "1.0"
+  date: "2026-08-02"
+  description: Initial GitHub Pages site with Jekyll

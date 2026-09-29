@@ -1,3 +1,14 @@
-<nav class="top-nav caps" aria-label="Site">
-  <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
-</nav>
+<header class="topbar">
+  <nav aria-label="Site">
+    <ul class="topnav">
+      <li><a href="{{ '/' | relative_url }}"{% if page.url == "/" %} aria-current="page"{% endif %}>Home</a></li>
+      {% for item in site.data.navigation %}
+      <li><a href="{{ item.url | relative_url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+  <p class="docref">
+    <span>Doc. no. {{ page.doc | default: "ZB-001" }}</span>
+    <span>Rev. <a href="{{ '/revisions/' | relative_url }}">{{ current_rev.rev }}</a></span>
+  </p>
+</header>
