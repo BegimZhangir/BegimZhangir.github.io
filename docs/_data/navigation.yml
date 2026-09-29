@@ -1,6 +1,6 @@
-# Links shown on the home page under your name.
+# Section links shown in the top bar, after BEGIM.NET.
 # Nothing is shown while this list is empty. A page's title is shown as its
-# "Sheet" in the footer title block.
+# "Sheet" in the footer.
 #
 # To add a section, create a page (e.g. fiction.md with `layout: page` and
 # `permalink: /fiction/`), then uncomment and edit an entry below:

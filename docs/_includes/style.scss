@@ -1,33 +1,35 @@
-/* begim.net: engineering-notebook style. Warm paper, ink-blue links,
-   small-caps headings, and a drawing title block as the footer.
-   On phones it is a single column; on desktop the page becomes a framed
-   drawing sheet with labelled rows and the title block in the corner.
-   Vertical spacing scales with screen height so the whole home page,
-   title block included, fits on screen without scrolling.
-   System fonts only; inlined into every page by _includes/head.html. */
+/* begim.net: engineering data sheet.
+   A 1960s-80s engineering catalogue page: cream stock, black ink, monospace
+   type, ruled data cells, a dimensioned figure, a revision block and a
+   printer's colour bar. Dark mode prints the same sheet in white on black.
+
+   System fonts only; inlined into every page by _includes/head.html.
+   Vertical spacing scales with viewport height so the home sheet fits on
+   one screen on desktop. */
 
 :root {
   color-scheme: light dark;
-  --paper: #fbfaf6;
-  --ink: #1c1b19;
-  --muted: #6b6860;
-  --rule: #d9d5cb;
-  --frame: #a8a398;
-  --accent: #1f4f9a;
-  --measure: 38rem;
-  --label: 13rem;
-  --gap: 48px;
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "URW Palladio L", P052, "Book Antiqua", Georgia, serif;
+  --paper: #efe9dc;
+  --ink: #141413;
+  --muted: #5f5b52;
+  --rule: #141413;
+  --link: #1b3f99;
+  --red: #c8342f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+  --sans: "Helvetica Neue", Helvetica, Arial, "Nimbus Sans", sans-serif;
+  --line: 1.5px;
+  --pad: clamp(14px, 2.2vw, 40px);
+  --vgap: clamp(10px, 2.4vh, 32px);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #161614;
-    --ink: #e8e4da;
-    --muted: #9a968c;
-    --rule: #34332f;
-    --frame: #5b5850;
-    --accent: #93b4f5;
+    --paper: #0c0c0b;
+    --ink: #f1eee6;
+    --muted: #a19d93;
+    --rule: #f1eee6;
+    --link: #9db7ff;
+    --red: #ff6b5e;
   }
 }
 
@@ -46,32 +48,38 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--serif);
-  font-size: 1.125rem;
-  line-height: 1.6;
-  font-variant-numeric: oldstyle-nums;
+  font-family: var(--mono);
+  font-size: clamp(12.5px, calc(0.45vw + 0.75vh + 4px), 16px);
+  line-height: 1.45;
+}
+
+h1,
+h2,
+p,
+ol,
+ul,
+dl,
+dd,
+figure {
+  margin: 0;
 }
 
 a {
-  color: var(--accent);
+  color: var(--link);
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
 
 a:hover {
-  text-decoration-color: currentColor;
+  background: var(--link);
+  color: var(--paper);
+  text-decoration: none;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: 2px;
-}
-
-.caps {
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.08em;
 }
 
 .skip-link {
@@ -81,7 +89,7 @@ a:hover {
   z-index: 1;
   padding: 4px 8px;
   background: var(--paper);
-  border: 1px solid var(--ink);
+  border: var(--line) solid var(--ink);
   transform: translateY(-200%);
 }
 
@@ -89,194 +97,333 @@ a:hover {
   transform: none;
 }
 
-/* ---------- Sheet (page frame) ---------- */
+/* ---------- Sheet ---------- */
 
 .sheet {
   display: flex;
   flex-direction: column;
+  max-width: 1440px;
   min-height: 100vh;
   min-height: 100dvh;
-}
-
-main,
-.top-nav,
-.site-footer {
-  width: 100%;
-  max-width: calc(var(--measure) + 48px);
   margin: 0 auto;
-  padding-right: 24px;
-  padding-left: 24px;
+  padding: 0 var(--pad);
 }
 
 main {
+  display: flex;
   flex: 1;
-  padding-top: clamp(20px, 6vh, 96px);
-  padding-bottom: clamp(16px, 4vh, 64px);
+  flex-direction: column;
+  gap: var(--vgap);
+  padding: var(--vgap) 0;
 }
 
-.top-nav {
-  padding-top: 24px;
+/* Top bar: brand left, document reference right, dotted rule under */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: clamp(10px, 2vh, 22px) 0 clamp(8px, 1.4vh, 14px);
+  border-bottom: 2px dotted var(--ink);
 }
 
-.top-nav + main {
-  padding-top: 40px;
+.topbar-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 28px;
 }
 
-.top-nav a {
+.brand {
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.05em;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  padding: 0;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.topnav a[aria-current="page"] {
   color: var(--ink);
   text-decoration: none;
 }
 
-.top-nav a:hover {
-  color: var(--accent);
+.docref {
+  display: flex;
+  gap: 20px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.85em;
 }
 
-/* ---------- Footer: technical-drawing title block ---------- */
+/* Title row: stacked label + large monospace title + affiliation */
 
-.site-footer {
-  padding-bottom: clamp(12px, 3vh, 32px);
-}
-
-.title-block {
+.titlerow {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  width: 100%;
-  margin: 0;
-  border: 1px solid var(--frame);
-  font-size: 0.875rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px clamp(14px, 2vw, 28px);
+}
+
+.stack {
+  font-size: 1.05em;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bigname {
+  font-size: clamp(2.1rem, 9.5vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.affil {
+  grid-column: 1 / -1;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.95em;
   line-height: 1.35;
 }
 
-.title-block div {
-  margin: 0;
-  padding: 6px 12px 8px;
+/* Ruled data table */
+
+.datatable {
+  display: grid;
+  border: var(--line) solid var(--rule);
 }
 
-.title-block div + div {
-  border-left: 1px solid var(--frame);
+.cell {
+  padding: clamp(8px, 1.4vh, 14px) clamp(10px, 1vw, 14px);
 }
 
-.title-block dt {
-  color: var(--muted);
-  font-size: 0.75rem;
+.datatable .cell + .cell {
+  border-top: var(--line) solid var(--rule);
 }
 
-.title-block dd {
-  margin: 0;
-  white-space: nowrap;
-}
-
-/* ---------- Home ---------- */
-
-.name {
-  margin: 0;
-  font-size: clamp(2.25rem, 7vw, 3rem);
+.cell h2,
+.revblock h2 {
+  margin-bottom: 0.35em;
+  font-size: 1em;
   font-weight: normal;
-  line-height: 1.1;
+  text-transform: uppercase;
 }
 
-.sections {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 20px;
-  margin: 16px 0 0;
+.prose-cell {
+  max-width: 44ch;
+}
+
+.numbered {
   padding: 0;
   list-style: none;
-  font-size: 1.1875rem;
+  counter-reset: item;
+  text-transform: uppercase;
 }
 
-.home {
-  counter-reset: section;
-}
-
-.sec {
-  margin-top: clamp(20px, 5vh, 56px);
-}
-
-.sec h2 {
-  margin: 0 0 12px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule);
-  font-size: 1.125rem;
-  font-weight: normal;
-  line-height: 1.3;
-}
-
-.sec h2::before {
-  counter-increment: section;
-  content: counter(section);
-  display: inline-block;
-  width: 1.5em;
-  color: var(--accent);
-  font-variant-caps: normal;
-  letter-spacing: 0;
-}
-
-.sec p {
-  margin: 0;
-}
-
-.contact {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: 4px 24px;
-  margin: 0;
-}
-
-.contact dt {
+.numbered li::before {
+  counter-increment: item;
+  content: "0" counter(item) "  ";
+  white-space: pre;
   color: var(--muted);
 }
 
-.contact dd {
-  margin: 0;
+.kv {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0 2ch;
+}
+
+.kv dt {
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.kv dd {
   overflow-wrap: anywhere;
 }
 
-/* ---------- Content pages (Fiction, Portfolio, ...) ---------- */
+/* Figure + revision block */
 
-.prose h1 {
-  margin: 0 0 32px;
-  font-size: clamp(2rem, 6vw, 2.5rem);
+.lower {
+  display: grid;
+  gap: var(--vgap);
+}
+
+.fig {
+  display: none;
+}
+
+.airfoil {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 26vh;
+  overflow: visible;
+}
+
+.airfoil text {
+  fill: var(--ink);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+
+.airfoil .section {
+  fill: url(#hatch);
+  stroke: var(--ink);
+  stroke-width: 1.8;
+}
+
+.airfoil .hatch-line {
+  stroke: var(--ink);
+  stroke-width: 0.7;
+  opacity: 0.55;
+}
+
+.airfoil .camber {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 1.3;
+  stroke-dasharray: 6 4;
+}
+
+.airfoil .centre {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+  stroke-dasharray: 14 3 2 3;
+}
+
+.airfoil .dim line,
+.airfoil .callouts line {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+}
+
+.airfoil .ink-fill {
+  fill: var(--ink);
+}
+
+.fig figcaption {
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.revblock {
+  border: var(--line) solid var(--rule);
+  padding: clamp(8px, 1.4vh, 14px) clamp(10px, 1vw, 14px);
+}
+
+.revtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.revtable th,
+.revtable td {
+  padding: 3px 1.5ch 3px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 30%, transparent);
+  text-align: left;
+  vertical-align: top;
+}
+
+.revtable th {
+  border-bottom: var(--line) solid var(--rule);
+  color: var(--muted);
   font-weight: normal;
-  line-height: 1.15;
+  text-transform: uppercase;
 }
 
-.prose h2,
-.prose h3 {
-  margin: 40px 0 12px;
-  font-weight: normal;
-  line-height: 1.3;
+.revtable td:first-child {
+  white-space: nowrap;
 }
 
-.prose h2 {
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule);
-  font-size: 1.375rem;
+.nowrap {
+  white-space: nowrap;
 }
 
-.prose h3 {
-  font-size: 1.1875rem;
-  font-style: italic;
+.more {
+  margin-top: 0.5em;
+  text-transform: uppercase;
+}
+
+/* Footer: printer's colour bar + boxed credits */
+
+.foot {
+  padding-bottom: clamp(10px, 2.2vh, 28px);
+}
+
+.colorbar {
+  height: clamp(10px, 1.8vh, 18px);
+  border: var(--line) solid var(--rule);
+  border-bottom: 0;
+  background: linear-gradient(90deg,
+    #e3a72f 0 6.25%, #b5562e 0 12.5%, #c8342f 0 18.75%, #a23a6c 0 25%,
+    #5b3c8f 0 31.25%, #1f4fa0 0 37.5%, #2c8a6a 0 43.75%, #7e9a45 0 50%,
+    #141413 0 56.25%, #00a3e0 0 62.5%, #f4e21a 0 68.75%, #d6247f 0 75%,
+    #3a3a38 0 81.25%, #6d6d6a 0 87.5%, #a9a9a5 0 93.75%, #f4f3ef 0 100%);
+}
+
+.footboxes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border: var(--line) solid var(--rule);
+  text-transform: uppercase;
+}
+
+.footboxes p {
+  padding: clamp(5px, 1vh, 10px) clamp(10px, 1vw, 14px);
+}
+
+.footboxes p + p {
+  border-left: var(--line) solid var(--rule);
+}
+
+/* Content pages (Revisions, and later Fiction, Portfolio, ...) */
+
+.prose {
+  border: var(--line) solid var(--rule);
+  font-size: 1.05em;
 }
 
 .prose p,
 .prose ul,
 .prose ol,
+.prose table,
 .prose blockquote {
-  margin: 0 0 16px;
+  max-width: 72ch;
+  margin-bottom: 1em;
 }
 
-.prose ul,
-.prose ol {
-  padding-left: 24px;
+.prose table {
+  max-width: none;
+}
+
+.prose h2 {
+  margin: 1.6em 0 0.5em;
+  font-size: 1em;
+  font-weight: normal;
+  text-transform: uppercase;
 }
 
 .prose blockquote {
-  margin: 24px 0;
-  padding-left: 20px;
-  border-left: 2px solid var(--rule);
+  padding-left: 2ch;
+  border-left: var(--line) solid var(--rule);
   color: var(--muted);
-  font-style: italic;
 }
 
 .prose img {
@@ -285,147 +432,117 @@ main {
 }
 
 .prose hr {
-  width: 96px;
-  margin: 40px auto;
+  margin: 1.5em 0;
   border: 0;
-  border-top: 1px solid var(--frame);
+  border-top: 2px dotted var(--ink);
 }
 
-/* Very short phone screens: slightly smaller type so the page still fits */
-@media (max-width: 59.99rem) and (max-height: 35rem) {
+/* Short phone screens: drop the Fields cell (it restates About) and show
+   only the current revision, so the home sheet still fits on one screen */
+@media (max-width: 39.99rem) and (max-height: 58rem) {
+  .cell-fields {
+    display: none;
+  }
+
+  .revblock .revtable tbody tr:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+/* Very short phones: the revision is still shown in the top bar */
+@media (max-width: 39.99rem) and (max-height: 40rem) {
   body {
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 12px;
   }
 
-  .name {
-    font-size: 1.875rem;
+  .bigname {
+    font-size: 1.9rem;
   }
 
-  .sec h2 {
-    margin-bottom: 8px;
+  .revblock {
+    display: none;
+  }
+
+  :root {
+    --vgap: 8px;
   }
 }
 
-/* ---------- Desktop: framed drawing sheet ---------- */
+/* ---------- Tablet and up ---------- */
+
+@media (min-width: 40rem) {
+  /* Tablet: About across the top, Fields and Contact side by side */
+  .datatable {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cell-about {
+    grid-column: 1 / -1;
+  }
+
+  .datatable .cell:last-child {
+    border-left: var(--line) solid var(--rule);
+  }
+}
+
+/* Figure appears once there is room for it beside the revision block */
+@media (min-width: 48rem) {
+  .fig {
+    display: block;
+  }
+
+  .lower {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: end;
+  }
+}
+
+/* ---------- Desktop ---------- */
 
 @media (min-width: 60rem) {
-  :root {
-    --pad: clamp(12px, 2.5vh, 24px);
+  .titlerow {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: end;
   }
 
-  body {
-    padding: var(--pad);
-    font-size: 1.1875rem;
+  /* Desktop: three data cells in one row */
+  .datatable {
+    grid-template-columns: 1.4fr 1fr 1.2fr;
   }
 
-  .sheet {
-    max-width: 1400px;
-    min-height: calc(100vh - 2 * var(--pad));
-    min-height: calc(100dvh - 2 * var(--pad));
-    margin: 0 auto;
-    border: 1px solid var(--frame);
+  .cell-about {
+    grid-column: auto;
   }
 
-  main,
-  .top-nav,
-  .site-footer {
-    max-width: none;
-    margin: 0;
-    padding-right: 72px;
-    padding-left: 72px;
+  .datatable .cell + .cell {
+    border-top: 0;
+    border-left: var(--line) solid var(--rule);
   }
 
-  main {
-    padding-top: clamp(32px, 9vh, 128px);
-    padding-bottom: clamp(24px, 5vh, 96px);
+  .stack {
+    padding-bottom: 0.35em;
   }
 
-  .top-nav {
-    padding-top: clamp(20px, 4vh, 40px);
+  .bigname {
+    font-size: clamp(3rem, calc(5.6vw + 1vh), 7.5rem);
   }
 
-  .top-nav + main {
-    padding-top: clamp(24px, 6vh, 64px);
+  .titlerow-page .bigname {
+    font-size: clamp(2.5rem, calc(4vw + 1vh), 5rem);
   }
 
-  /* Title block sits in the sheet's bottom-right corner, sharing its border */
-  .site-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0;
+  .affil {
+    grid-column: auto;
+    padding-bottom: 0.45em;
+    text-align: right;
   }
 
-  .title-block {
-    grid-template-columns: repeat(3, auto);
-    width: auto;
-    border-width: 1px 0 0 1px;
+  /* Home sheet: spread any spare height evenly between the rows */
+  main:has(> .lower) {
+    justify-content: space-between;
   }
 
-  .title-block div {
-    padding: 8px 16px 10px;
-  }
-
-  .name {
-    font-size: clamp(2.75rem, 8vh, 3.75rem);
-  }
-
-  .sections {
-    margin-top: 20px;
-  }
-
-  /* Each section is a row: numbered label on the left, text on the right */
-  .sec {
-    display: grid;
-    grid-template-columns: var(--label) minmax(0, var(--measure));
-    gap: 0 var(--gap);
-    margin-top: clamp(24px, 6vh, 72px);
-    padding-top: 16px;
-    border-top: 1px solid var(--rule);
-    max-width: calc(var(--label) + var(--gap) + var(--measure));
-  }
-
-  .sec h2 {
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-
-  .sec h2::before {
-    width: 2em;
-  }
-
-  /* Content pages line up with the home page's text column */
-  main > .prose {
-    max-width: calc(var(--label) + var(--gap) + var(--measure));
-    padding-left: calc(var(--label) + var(--gap));
-  }
-}
-
-/* Large screens: scale the type and columns up to fill the sheet,
-   but only when there is enough height for it */
-@media (min-width: 80rem) and (min-height: 50rem) {
-  :root {
-    --measure: 44rem;
-    --label: 17rem;
-    --gap: 64px;
-  }
-
-  body {
-    font-size: 1.3125rem;
-  }
-
-  main,
-  .top-nav {
-    padding-right: 96px;
-    padding-left: 96px;
-  }
-
-  .name {
-    font-size: clamp(3.75rem, 8vh, 4.5rem);
-  }
-
-  .sec {
-    margin-top: clamp(48px, 7vh, 88px);
+  .airfoil {
+    max-height: 36vh;
   }
 }

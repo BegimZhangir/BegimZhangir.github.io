@@ -1,0 +1,21 @@
+{% comment %}
+  Revision table, drawn from _data/revisions.yml (newest first).
+  include.limit: number of rows to show (default: all).
+{% endcomment %}
+{% assign rows = site.data.revisions %}
+{% if include.limit %}{% assign rows = site.data.revisions | slice: 0, include.limit %}{% endif %}
+<table class="revtable">
+  <thead>
+    <tr><th scope="col">Rev.</th><th scope="col">Description</th><th scope="col">Date</th>{% if include.pr %}<th scope="col">PR</th>{% endif %}</tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.rev }}</td>
+      <td>{{ r.description }}</td>
+      <td class="nowrap">{{ r.date }}</td>
+      {% if include.pr %}<td>{% if r.pr %}<a href="https://github.com/{{ site.repository }}/pull/{{ r.pr }}">#{{ r.pr }}</a>{% else %}—{% endif %}</td>{% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

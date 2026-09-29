@@ -1,21 +1,7 @@
-{% comment %}
-  Footer styled as a technical-drawing title block.
-  Sheet: the page's `sheet` front matter, or its title ("Home" on the home page).
-  Rev.:  the page's `revision` front matter, or `revision` in _config.yml.
-{% endcomment %}
-<footer class="site-footer">
-  <dl class="title-block">
-    <div>
-      <dt class="caps">Drawn by</dt>
-      <dd>{{ site.title }}</dd>
-    </div>
-    <div>
-      <dt class="caps">Sheet</dt>
-      <dd>{{ page.sheet | default: page.title }}</dd>
-    </div>
-    <div>
-      <dt class="caps">Rev.</dt>
-      <dd>{{ page.revision | default: site.revision }}</dd>
-    </div>
-  </dl>
+<footer class="foot">
+  <div class="colorbar" aria-hidden="true"></div>
+  <div class="footboxes">
+    <p>Typeset in system monospace · © {{ site.time | date: '%Y' }} {{ site.title }}</p>
+    <p>Sheet: {{ page.sheet | default: page.title }}</p>
+  </div>
 </footer>
