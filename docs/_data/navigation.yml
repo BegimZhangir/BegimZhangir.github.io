@@ -1,5 +1,6 @@
-# Buttons shown on the home page, under your name.
-# Nothing is shown while this list is empty.
+# Links shown on the home page under your name.
+# Nothing is shown while this list is empty. Each entry also becomes the next
+# "sheet" in the footer title block (home is sheet 1).
 #
 # To add a section, create a page (e.g. fiction.md with `layout: page` and
 # `permalink: /fiction/`), then uncomment and edit an entry below:
