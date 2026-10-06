@@ -9,6 +9,10 @@
 #
 # `pr` is the GitHub pull request number, when the change came through one.
 
+- rev: "5.1"
+  date: "2026-10-06"
+  description: Instagram handle changed to @zhanrocks
+  pr: 7
 - rev: "5.0"
   date: "2026-09-29"
   description: Engineering data-sheet redesign; important posts; revision history page
