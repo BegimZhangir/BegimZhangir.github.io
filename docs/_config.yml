@@ -4,6 +4,9 @@ instagram_username: zhanrocks
 youtube_handle: zhanrocks
 description: "Zhangir Begim, Mechanical Engineering student at The Hong Kong Polytechnic University."
 lang: en
+# Dates (post dates, "now" at build time) are in the author's local time, so a post
+# dated today is published even while it is still yesterday in UTC.
+timezone: Asia/Hong_Kong
 baseurl: ""
 url: "https://begim.net"
 repository: BegimZhangir/BegimZhangir.github.io
