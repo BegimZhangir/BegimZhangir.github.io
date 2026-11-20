@@ -11,3 +11,8 @@
 #   name: The Last Launch
 #   url: /fiction/the-last-launch/
 #   date: "2026-10-01"
+
+- section: Blog
+  name: Challenger and what you learn from recovering hardware
+  url: /blog/challenger-recovering-hardware/
+  date: "2026-11-21"

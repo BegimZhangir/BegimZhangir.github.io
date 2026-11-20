@@ -13,6 +13,17 @@ author:
   email: zhanrocks@gmail.com
   uri: https://begim.net/
 
+# Blog posts live in _posts/ (YYYY-MM-DD-slug.html) and are served at /blog/slug/
+permalink: /blog/:title/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      sheet: Blog
+
 sass:
   style: compressed
 
