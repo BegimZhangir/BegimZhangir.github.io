@@ -426,6 +426,64 @@ main {
   color: var(--muted);
 }
 
+/* Tags: small ruled labels, like the top-bar buttons */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.8em;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.tag:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tag-count {
+  color: var(--muted);
+}
+
+.tag:hover .tag-count {
+  color: inherit;
+}
+
+.tag-index {
+  margin: 0 0 1.5em;
+}
+
+.tag-group {
+  margin-bottom: 1.8em;
+  scroll-margin-top: 16px;
+}
+
+.tag-group h2 {
+  margin: 0 0 0.4em;
+  font-size: 1em;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.tag-group:target h2 {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0 0.5ch;
+}
+
 /* A post: monospace furniture around a serif reading column */
 
 .post {
@@ -463,6 +521,16 @@ main {
 
 .post-meta div:nth-child(n + 3) {
   border-top: var(--line) solid var(--rule);
+}
+
+.post-meta .meta-tags {
+  grid-column: 1 / -1;
+  border-top: var(--line) solid var(--rule);
+  border-left: 0;
+}
+
+.post-meta .meta-tags .tags {
+  margin-top: 4px;
 }
 
 .post-meta dt {
@@ -609,6 +677,11 @@ main {
 
   .post-meta div + div {
     border-left: var(--line) solid var(--rule);
+  }
+
+  .post-meta div.meta-tags {
+    border-top: var(--line) solid var(--rule);
+    border-left: 0;
   }
 }
 

@@ -18,11 +18,13 @@ description: "Posts by Zhangir Begim on engineering, spaceflight and whatever el
       <td>
         <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
         {% if post.description %}<p class="postlist-desc">{{ post.description }}</p>{% endif %}
+        {% include tag-list.html tags=post.tags %}
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+<p class="more"><a href="{{ '/blog/tags/' | relative_url }}">Browse by tag →</a></p>
 {% else %}
 <p>No posts yet.</p>
 {% endif %}

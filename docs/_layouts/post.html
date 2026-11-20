@@ -12,6 +12,7 @@ layout: default
       <div><dt>Posted</dt><dd><time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%Y-%m-%d" }}</time></dd></div>
       <div><dt>Section</dt><dd><a href="{{ '/blog/' | relative_url }}">Blog</a></dd></div>
       <div><dt>Reading time</dt><dd>{{ minutes }} min</dd></div>
+      {% if page.tags.size > 0 %}<div class="meta-tags"><dt>Tags</dt><dd>{% include tag-list.html tags=page.tags %}</dd></div>{% endif %}
     </dl>
   </header>
 

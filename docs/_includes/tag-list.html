@@ -1,0 +1,11 @@
+{% comment %}
+  A post's tags as links to their section on the Tags page.
+  include.tags: the list of tag names.
+{% endcomment %}
+{% if include.tags and include.tags.size > 0 %}
+<ul class="tags" aria-label="Tags">
+  {% for tag in include.tags %}
+  <li><a class="tag" href="{{ '/blog/tags/' | relative_url }}#{{ tag | slugify }}">{{ tag }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
