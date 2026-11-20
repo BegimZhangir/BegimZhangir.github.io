@@ -17,6 +17,7 @@
   --red: #c8342f;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
   --sans: "Helvetica Neue", Helvetica, Arial, "Nimbus Sans", sans-serif;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
   --line: 1.5px;
   --pad: clamp(14px, 2.2vw, 40px);
   --vgap: clamp(10px, 2.4vh, 32px);
@@ -411,6 +412,285 @@ main {
   margin: 1.5em 0;
   border: 0;
   border-top: 2px dotted var(--ink);
+}
+
+/* ---------- Blog ---------- */
+
+.postlist td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.postlist-desc {
+  margin: 0.2em 0 0;
+  color: var(--muted);
+}
+
+/* Tags: small ruled labels, like the top-bar buttons */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.8em;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.tag:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tag-count {
+  color: var(--muted);
+}
+
+.tag:hover .tag-count {
+  color: inherit;
+}
+
+.tag-index {
+  margin: 0 0 1.5em;
+}
+
+.tag-group {
+  margin-bottom: 1.8em;
+  scroll-margin-top: 16px;
+}
+
+.tag-group h2 {
+  margin: 0 0 0.4em;
+  font-size: 1em;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.tag-group:target h2 {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0 0.5ch;
+}
+
+/* A post: monospace furniture around a serif reading column */
+
+.post {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.post-head {
+  margin-bottom: 2.4em;
+}
+
+.post-title {
+  margin-bottom: 0.8em;
+  font-size: clamp(1.75rem, calc(2.2vw + 1vh), 2.6rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.post-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: var(--line) solid var(--rule);
+}
+
+.post-meta div {
+  padding: 6px 12px 8px;
+}
+
+.post-meta div:nth-child(even) {
+  border-left: var(--line) solid var(--rule);
+}
+
+.post-meta div:nth-child(n + 3) {
+  border-top: var(--line) solid var(--rule);
+}
+
+.post-meta .meta-tags {
+  grid-column: 1 / -1;
+  border-top: var(--line) solid var(--rule);
+  border-left: 0;
+}
+
+.post-meta .meta-tags .tags {
+  margin-top: 4px;
+}
+
+.post-meta dt {
+  color: var(--muted);
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.post-body {
+  font-family: var(--serif);
+  font-size: 1.1875rem;
+  line-height: 1.65;
+}
+
+.post-body p {
+  margin: 0 0 1.15em;
+  text-wrap: pretty;
+}
+
+.post-body hr {
+  width: 30%;
+  margin: 2.4em auto;
+  border: 0;
+  border-top: 2px dotted var(--ink);
+}
+
+.fnref {
+  font-family: var(--mono);
+  font-size: 0.62em;
+  line-height: 0;
+  vertical-align: super;
+}
+
+.fnref a {
+  padding: 0 0.1em;
+  text-decoration: none;
+}
+
+.post :target {
+  scroll-margin-top: 30vh;
+}
+
+.post-fig {
+  margin: 2.2em 0;
+}
+
+.post-fig img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  mix-blend-mode: multiply;
+}
+
+.post-fig figcaption {
+  max-width: 38rem;
+  margin: 1em auto 0;
+  font-family: var(--mono);
+  font-size: 0.72em;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.fig-no {
+  margin-right: 0.6ch;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.credit {
+  color: var(--muted);
+}
+
+.notes,
+.bibliography {
+  margin-top: 2.6em;
+  padding-top: 1.2em;
+  border-top: 2px dotted var(--ink);
+  font-family: var(--mono);
+  font-size: 0.74em;
+  line-height: 1.5;
+}
+
+.notes h2,
+.bibliography h2 {
+  margin: 0 0 1em;
+  font-size: 1em;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.footnotes {
+  padding-left: 4ch;
+}
+
+.footnotes li {
+  margin-bottom: 0.4em;
+  padding-left: 0.5ch;
+}
+
+.footnotes li::marker {
+  color: var(--muted);
+}
+
+.footnotes li:target {
+  background: color-mix(in srgb, var(--link) 14%, transparent);
+}
+
+.fnback {
+  text-decoration: none;
+}
+
+.bibliography ul {
+  padding: 0;
+  list-style: none;
+}
+
+.bibliography li {
+  margin-bottom: 0.5em;
+  padding-left: 3ch;
+  text-indent: -3ch;
+}
+
+.notes a,
+.bibliography a {
+  overflow-wrap: anywhere;
+}
+
+.post-end {
+  margin-top: 2.4em;
+  padding-top: 1em;
+  border-top: var(--line) solid var(--rule);
+  text-transform: uppercase;
+}
+
+@media (min-width: 40rem) {
+  .post-meta {
+    grid-template-columns: repeat(4, auto);
+  }
+
+  .post-meta div:nth-child(n) {
+    border-top: 0;
+  }
+
+  .post-meta div + div {
+    border-left: var(--line) solid var(--rule);
+  }
+
+  .post-meta div.meta-tags {
+    border-top: var(--line) solid var(--rule);
+    border-left: 0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Line drawings: white lines on the dark sheet */
+  .post-fig img {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
 }
 
 /* Short phone screens: show only the newest important post, so the home

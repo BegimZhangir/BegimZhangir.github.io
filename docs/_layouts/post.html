@@ -1,0 +1,26 @@
+---
+layout: default
+---
+{% comment %} Reading time counts the article text only, not the notes or bibliography. {% endcomment %}
+{% assign article_text = content | split: '<section class="notes"' | first | strip_html %}
+{% assign minutes = article_text | number_of_words | divided_by: 220 | at_least: 1 %}
+<article class="post">
+  <header class="post-head">
+    <h1 class="post-title">{{ page.title | escape }}</h1>
+    <dl class="post-meta">
+      <div><dt>Author</dt><dd>{{ site.author.name }}</dd></div>
+      <div><dt>Posted</dt><dd><time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%Y-%m-%d" }}</time></dd></div>
+      <div><dt>Section</dt><dd><a href="{{ '/blog/' | relative_url }}">Blog</a></dd></div>
+      <div><dt>Reading time</dt><dd>{{ minutes }} min</dd></div>
+      {% if page.tags.size > 0 %}<div class="meta-tags"><dt>Tags</dt><dd>{% include tag-list.html tags=page.tags %}</dd></div>{% endif %}
+    </dl>
+  </header>
+
+  <div class="post-body">
+    {{ content }}
+  </div>
+
+  <footer class="post-end">
+    <a href="{{ '/blog/' | relative_url }}">← All posts</a>
+  </footer>
+</article>

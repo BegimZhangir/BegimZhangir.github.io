@@ -1,0 +1,36 @@
+---
+layout: page
+title: Tags
+doc: ZB-004
+permalink: /blog/tags/
+description: "Blog posts by Zhangir Begim, grouped by tag."
+---
+
+{% assign tags = site.tags | sort %}
+{% if tags.size > 0 %}
+<ul class="tags tag-index" aria-label="All tags">
+  {% for tag in tags %}
+  <li><a class="tag" href="#{{ tag[0] | slugify }}">{{ tag[0] }} <span class="tag-count">{{ tag[1].size }}</span></a></li>
+  {% endfor %}
+</ul>
+
+{% for tag in tags %}
+<section class="tag-group" id="{{ tag[0] | slugify }}" aria-labelledby="{{ tag[0] | slugify }}-h">
+  <h2 id="{{ tag[0] | slugify }}-h">{{ tag[0] }} ({{ tag[1].size }})</h2>
+  <table class="revtable postlist">
+    <tbody>
+      {% for post in tag[1] %}
+      <tr>
+        <td class="nowrap">{{ post.date | date: "%Y-%m-%d" }}</td>
+        <td><a href="{{ post.url | relative_url }}">{{ post.title }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endfor %}
+{% else %}
+<p>No tags yet.</p>
+{% endif %}
+
+<p class="more"><a href="{{ '/blog/' | relative_url }}">← All posts</a></p>

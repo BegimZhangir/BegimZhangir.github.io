@@ -1,0 +1,30 @@
+---
+layout: page
+title: Blog
+doc: ZB-003
+permalink: /blog/
+description: "Posts by Zhangir Begim on engineering, spaceflight and whatever else."
+---
+
+{% if site.posts.size > 0 %}
+<table class="revtable postlist">
+  <thead>
+    <tr><th scope="col">Date</th><th scope="col">Title</th></tr>
+  </thead>
+  <tbody>
+    {% for post in site.posts %}
+    <tr>
+      <td class="nowrap">{{ post.date | date: "%Y-%m-%d" }}</td>
+      <td>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        {% if post.description %}<p class="postlist-desc">{{ post.description }}</p>{% endif %}
+        {% include tag-list.html tags=post.tags %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="more"><a href="{{ '/blog/tags/' | relative_url }}">Browse by tag →</a></p>
+{% else %}
+<p>No posts yet.</p>
+{% endif %}
