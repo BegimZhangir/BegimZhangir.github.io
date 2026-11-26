@@ -23,14 +23,29 @@
   --vgap: clamp(10px, 2.4vh, 32px);
 }
 
+/* Dark palette: applies when the reader picks Dark with the top-bar switch,
+   or when their system is dark and they haven't picked Light. */
+@mixin dark-palette {
+  color-scheme: dark;
+  --paper: #0c0c0b;
+  --ink: #f1eee6;
+  --muted: #a19d93;
+  --rule: #f1eee6;
+  --link: #9db7ff;
+  --red: #ff6b5e;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  @include dark-palette;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #0c0c0b;
-    --ink: #f1eee6;
-    --muted: #a19d93;
-    --rule: #f1eee6;
-    --link: #9db7ff;
-    --red: #ff6b5e;
+  :root:not([data-theme="light"]) {
+    @include dark-palette;
   }
 }
 
@@ -153,6 +168,55 @@ main {
 .topnav a[aria-current="page"] {
   background: var(--ink);
   color: var(--paper);
+}
+
+.topbar-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+}
+
+/* Light/dark switch: a ruled slider in the same style as the top-bar buttons */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tt-track {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 18px;
+  border: var(--line) solid var(--ink);
+}
+
+.tt-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  background: var(--ink);
+  transition: transform 0.15s;
+}
+
+.theme-toggle[aria-checked="true"] .tt-thumb {
+  transform: translateX(18px);
+}
+
+.theme-toggle:hover .tt-track {
+  outline: 1px solid var(--ink);
 }
 
 .docref {
@@ -685,11 +749,26 @@ main {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  /* Line drawings: white lines on the dark sheet */
+/* Line drawings: white lines on the dark sheet */
+@mixin dark-figures {
   .post-fig img {
     filter: invert(1);
     mix-blend-mode: screen;
+  }
+
+  .post-fig--keep img {
+    filter: none;
+    mix-blend-mode: normal;
+  }
+}
+
+:root[data-theme="dark"] {
+  @include dark-figures;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-figures;
   }
 }
 

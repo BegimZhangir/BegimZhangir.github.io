@@ -9,6 +9,10 @@
 #
 # `pr` is the GitHub pull request number, when the change came through one.
 
+- rev: "5.4"
+  date: "2026-11-27"
+  description: "Essay: AI Fundamentals: Neural Networks, with interactive figures; light/dark switch"
+  pr: 10
 - rev: "5.3"
   date: "2026-11-21"
   description: Site timezone set to Hong Kong so posts publish on their local date
