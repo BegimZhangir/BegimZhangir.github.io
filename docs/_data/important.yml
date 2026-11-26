@@ -13,6 +13,10 @@
 #   date: "2026-10-01"
 
 - section: Blog
+  name: "AI Fundamentals: Neural Networks"
+  url: /blog/ai-fundamentals-neural-networks/
+  date: "2026-11-27"
+- section: Blog
   name: Challenger and what you learn from recovering hardware
   url: /blog/challenger-recovering-hardware/
   date: "2026-11-21"

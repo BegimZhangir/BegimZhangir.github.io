@@ -1,0 +1,395 @@
+---
+title: "AI Fundamentals: Neural Networks"
+date: 2026-11-27
+doc: ZB-B02
+tags: [Essays, AI]
+js: nn-figures.js
+css: nn-figures.scss
+description: "How a multilayer perceptron turns pixels into a guess at a digit, and how gradient descent and backpropagation train it. The first essay in a series on how modern AI works."
+---
+<p>The general public has become increasingly aware of the potentially world-changing capabilities and dangers of AI. An onslaught of solved mathematical problems<sup class="fnref" id="fnref:1"><a href="#fn:1" aria-label="Note 1">1</a></sup> and cyberattacks<sup class="fnref" id="fnref:2"><a href="#fn:2" aria-label="Note 2">2</a></sup> has helped legitimize the idea of superhuman AI in the eyes of the public, as well as policymakers. Every day, we see op-eds and blog posts on whether AI will or won’t replace humans in a particular sector of the economy, or even the economy as a whole. What has irritated me about most of this writing is the fact that it inadequately explains some of the key ideas that the authors are taking into consideration when making important forecasts. For example, <em>AI 2027</em> only briefly mentions reinforcement learning in spite of the fact that its core to understanding why the rogue AIs it predicts might emerge.<sup class="fnref" id="fnref:3"><a href="#fn:3" aria-label="Note 3">3</a></sup> What I want to do with the following essays is take a smart reader interested in understanding what will happen with AI, and explain the key concepts underlying how it works in sufficient detail that they can reason about its future growth from first principles, rather than looking at something like the graph below and taking its implications on faith alone.<sup class="fnref" id="fnref:4"><a href="#fn:4" aria-label="Note 4">4</a></sup></p>
+
+<figure class="post-fig post-fig--keep" id="fig-1">
+  <img src="{{ '/assets/blog/ai-fundamentals-neural-networks/fig1-metr-time-horizons.webp' | relative_url }}" width="1400" height="628" style="width: 700px" alt="Scatter plot from METR. The vertical axis is task duration for humans on a logarithmic scale, from 4 seconds to 16 hours; the horizontal axis is model release date from 2019 to 2026. Points rise along a straight dashed trend line, from GPT-2 at about 3 seconds in 2019, through GPT-3, GPT-3.5, GPT-4, GPT-4o, o1-preview, o1 and o3, to Claude Opus 4.6 at roughly 12 hours in early 2026. Claude Mythos Preview (early) sits at about 16 hours, in a hatched region labelled: measurements above 16 hrs are unreliable with our current task suite. Example tasks on the left axis range from answer question and count words in passage up to train classifier, train adversarially robust image model and optimally reduce the size of a language model." decoding="async">
+  <figcaption id="fig1-cap"><span class="fig-no">Fig. 1</span> The length of software tasks, measured by how long they take humans, that different large language models can complete 50% of the time, by release date. <span class="credit">Source: METR, <a href="https://metr.org/time-horizons/">“Task-Completion Time Horizons of Frontier AI Models”</a>.</span></figcaption>
+</figure>
+
+<p>This series of essays will cover the following topics:</p>
+
+<ol class="series">
+  <li>Neural networks</li>
+  <li>Large language model basics</li>
+  <li>Advanced large language models</li>
+  <li>Implications for alignment and generalization of intelligence</li>
+  <li>Predictions</li>
+</ol>
+
+<hr>
+
+<h2 id="neural-networks">Neural networks</h2>
+
+<p>Large language models are fundamentally based on neural networks. Neural networks are loosely inspired by how real brains work, where a collection of neurons are interconnected in a way that allows them to process information.<sup class="fnref" id="fnref:5"><a href="#fn:5" aria-label="Note 5">5</a></sup> The simplest useful neural network is the <strong>multilayer perceptron</strong> (MLP).<sup class="fnref" id="fnref:6"><a href="#fn:6" aria-label="Note 6">6</a></sup></p>
+
+<figure class="nn-fig" id="fig-2">
+  <div class="nn-box"><div class="nn-scroll"><svg class="nn-svg" viewBox="0 0 640 330" role="img" aria-labelledby="fig2-cap">
+<path class="conn conn-strong" d="M150,95L275,80M150,95L275,130M150,95L275,180M150,95L275,280M150,145L275,80M150,145L275,130M150,145L275,180M150,145L275,280M150,255L275,80M150,255L275,130M150,255L275,180M150,255L275,280M275,80L400,80M275,80L400,130M275,80L400,180M275,80L400,280M275,130L400,80M275,130L400,130M275,130L400,180M275,130L400,280M275,180L400,80M275,180L400,130M275,180L400,180M275,180L400,280M275,280L400,80M275,280L400,130M275,280L400,180M275,280L400,280M400,80L525,105M400,80L525,155M400,80L525,255M400,130L525,105M400,130L525,155M400,130L525,255M400,180L525,105M400,180L525,155M400,180L525,255M400,280L525,105M400,280L525,155M400,280L525,255"/>
+<circle class="node" cx="150" cy="95" r="15"/>
+<circle class="node" cx="150" cy="145" r="15"/>
+<circle class="node" cx="150" cy="255" r="15"/>
+<circle class="node" cx="275" cy="80" r="15"/>
+<circle class="node" cx="275" cy="130" r="15"/>
+<circle class="node" cx="275" cy="180" r="15"/>
+<circle class="node" cx="275" cy="280" r="15"/>
+<circle class="node" cx="400" cy="80" r="15"/>
+<circle class="node" cx="400" cy="130" r="15"/>
+<circle class="node" cx="400" cy="180" r="15"/>
+<circle class="node" cx="400" cy="280" r="15"/>
+<circle class="node" cx="525" cy="105" r="15"/>
+<circle class="node" cx="525" cy="155" r="15"/>
+<circle class="node" cx="525" cy="255" r="15"/>
+<text class="dots" x="150" y="200" text-anchor="middle">⋮</text>
+<text class="dots" x="275" y="230" text-anchor="middle">⋮</text>
+<text class="dots" x="400" y="230" text-anchor="middle">⋮</text>
+<text class="dots" x="525" y="205" text-anchor="middle">⋮</text>
+<text class="dots" x="62" y="200" text-anchor="middle">⋮</text>
+<text class="dots" x="600" y="205" text-anchor="middle">⋮</text>
+<g class="arrows">
+<text class="var" x="62" y="100" text-anchor="middle">x<tspan class="sub" dy="4">1</tspan></text>
+<line x1="78" y1="95" x2="129" y2="95" marker-end="url(#f2arrow)"/>
+<text class="var" x="62" y="150" text-anchor="middle">x<tspan class="sub" dy="4">2</tspan></text>
+<line x1="78" y1="145" x2="129" y2="145" marker-end="url(#f2arrow)"/>
+<text class="var" x="62" y="260" text-anchor="middle">x<tspan class="sub" dy="4">m</tspan></text>
+<line x1="78" y1="255" x2="129" y2="255" marker-end="url(#f2arrow)"/>
+<line x1="545" y1="105" x2="585" y2="105" marker-end="url(#f2arrow)"/>
+<text class="var" x="600" y="110" text-anchor="middle">y<tspan class="sub" dy="4">1</tspan></text>
+<line x1="545" y1="155" x2="585" y2="155" marker-end="url(#f2arrow)"/>
+<text class="var" x="600" y="160" text-anchor="middle">y<tspan class="sub" dy="4">2</tspan></text>
+<line x1="545" y1="255" x2="585" y2="255" marker-end="url(#f2arrow)"/>
+<text class="var" x="600" y="260" text-anchor="middle">y<tspan class="sub" dy="4">n</tspan></text>
+</g>
+<defs><marker id="f2arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ink-fill" d="M0,1L10,5L0,9Z"/></marker></defs>
+<text x="150" y="45" text-anchor="middle">Input layer</text>
+<text x="337" y="22" text-anchor="middle">Hidden layers</text>
+<path class="bracket" d="M265,40V32H410V40"/>
+<text x="525" y="45" text-anchor="middle">Output layer</text>
+</svg></div><p class="nn-hint">Scroll sideways to see the whole diagram →</p></div>
+  <figcaption id="fig2-cap"><span class="fig-no">Fig. 2</span> A multilayer perceptron. Inputs x<sub>1</sub> … x<sub>m</sub> pass through the input layer and one or more hidden layers to the outputs y<sub>1</sub> … y<sub>n</sub>; every neuron connects to every neuron in the next layer.</figcaption>
+</figure>
+
+<p>We can get a better understanding of how the MLP works by seeing how it can be applied to a classic machine vision problem, the classification of digits from images. Our goal will be inputting an image and receiving an output that shows the number most likely to be in the image. A black-and-white image can be thought of as a list of numbers ranging from zero to one, with each number representing the brightness of a pixel in the image.</p>
+
+<figure class="nn-fig" id="fig-3">
+  <div class="nn-box pixels" data-pixels>
+  <div class="pixels-top">
+    <div class="pixel-grid">
+<button type="button" class="px" data-v="0.0" style="background:rgb(0,0,0);color:#f1eee6" aria-label="Row 1, column 1: brightness 0.0">0.0</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 1, column 2: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.9" style="background:rgb(230,230,230);color:#141413" aria-label="Row 1, column 3: brightness 0.9">0.9</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 1, column 4: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.0" style="background:rgb(0,0,0);color:#f1eee6" aria-label="Row 1, column 5: brightness 0.0">0.0</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 2, column 1: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.4" style="background:rgb(102,102,102);color:#f1eee6" aria-label="Row 2, column 2: brightness 0.4">0.4</button>
+<button type="button" class="px" data-v="1.0" style="background:rgb(255,255,255);color:#141413" aria-label="Row 2, column 3: brightness 1.0">1.0</button>
+<button type="button" class="px" data-v="0.4" style="background:rgb(102,102,102);color:#f1eee6" aria-label="Row 2, column 4: brightness 0.4">0.4</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 2, column 5: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.9" style="background:rgb(230,230,230);color:#141413" aria-label="Row 3, column 1: brightness 0.9">0.9</button>
+<button type="button" class="px" data-v="1.0" style="background:rgb(255,255,255);color:#141413" aria-label="Row 3, column 2: brightness 1.0">1.0</button>
+<button type="button" class="px" data-v="1.0" style="background:rgb(255,255,255);color:#141413" aria-label="Row 3, column 3: brightness 1.0">1.0</button>
+<button type="button" class="px" data-v="1.0" style="background:rgb(255,255,255);color:#141413" aria-label="Row 3, column 4: brightness 1.0">1.0</button>
+<button type="button" class="px" data-v="0.9" style="background:rgb(230,230,230);color:#141413" aria-label="Row 3, column 5: brightness 0.9">0.9</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 4, column 1: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.4" style="background:rgb(102,102,102);color:#f1eee6" aria-label="Row 4, column 2: brightness 0.4">0.4</button>
+<button type="button" class="px" data-v="1.0" style="background:rgb(255,255,255);color:#141413" aria-label="Row 4, column 3: brightness 1.0">1.0</button>
+<button type="button" class="px" data-v="0.4" style="background:rgb(102,102,102);color:#f1eee6" aria-label="Row 4, column 4: brightness 0.4">0.4</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 4, column 5: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.0" style="background:rgb(0,0,0);color:#f1eee6" aria-label="Row 5, column 1: brightness 0.0">0.0</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 5, column 2: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.9" style="background:rgb(230,230,230);color:#141413" aria-label="Row 5, column 3: brightness 0.9">0.9</button>
+<button type="button" class="px" data-v="0.1" style="background:rgb(26,26,26);color:#f1eee6" aria-label="Row 5, column 4: brightness 0.1">0.1</button>
+<button type="button" class="px" data-v="0.0" style="background:rgb(0,0,0);color:#f1eee6" aria-label="Row 5, column 5: brightness 0.0">0.0</button>
+    </div>
+    <div class="pixel-legend">
+      <p>Brightness</p>
+      <div class="pixel-ramp" aria-hidden="true"></div>
+      <p class="pixel-ramp-labels"><span>0 (black)</span><span>1 (white)</span></p>
+      <p>Each square is one pixel; its number is its brightness.</p>
+      <p class="muted">Click a pixel to make it brighter. After white it goes back to black.</p>
+      <p class="nn-controls"><button type="button" class="nn-btn" data-act="clear">Clear</button> <button type="button" class="nn-btn" data-act="reset">Reset</button></p>
+    </div>
+  </div>
+  <p class="pixel-list-label">↓ Read row by row into a list of 25 numbers:</p>
+  <ol class="pixel-list">
+<li style="background:rgb(0,0,0);color:#f1eee6">0.0</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(230,230,230);color:#141413">0.9</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(0,0,0);color:#f1eee6">0.0</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(102,102,102);color:#f1eee6">0.4</li>
+<li style="background:rgb(255,255,255);color:#141413">1.0</li>
+<li style="background:rgb(102,102,102);color:#f1eee6">0.4</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(230,230,230);color:#141413">0.9</li>
+<li style="background:rgb(255,255,255);color:#141413">1.0</li>
+<li style="background:rgb(255,255,255);color:#141413">1.0</li>
+<li style="background:rgb(255,255,255);color:#141413">1.0</li>
+<li style="background:rgb(230,230,230);color:#141413">0.9</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(102,102,102);color:#f1eee6">0.4</li>
+<li style="background:rgb(255,255,255);color:#141413">1.0</li>
+<li style="background:rgb(102,102,102);color:#f1eee6">0.4</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(0,0,0);color:#f1eee6">0.0</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(230,230,230);color:#141413">0.9</li>
+<li style="background:rgb(26,26,26);color:#f1eee6">0.1</li>
+<li style="background:rgb(0,0,0);color:#f1eee6">0.0</li>
+  </ol>
+</div>
+  <figcaption id="fig3-cap"><span class="fig-no">Fig. 3</span> An image is a list of numbers. Here, a 5 × 5 image; an MNIST digit works the same way with 28 × 28 = 784 pixels. <span class="credit">Interactive: click the pixels.</span></figcaption>
+</figure>
+
+<p>In our example, the images come from the MNIST dataset, a collection of 70,000 black-and-white images of handwritten digits.<sup class="fnref" id="fnref:7"><a href="#fn:7" aria-label="Note 7">7</a></sup> Each image is 28 x 28 pixels in size, meaning they have 784 pixels, and therefore 784 real-valued inputs we can feed into our MLP. The MLP’s first layer, the <strong>input layer</strong>, should therefore have 784 neurons. Each unique image we feed into our MLP will activate the neurons in the input layer differently.</p>
+
+<p>The neurons in the input layer feed into the <strong>hidden layers</strong> in the network. Let’s give our multilayer perceptron 2 hidden layers with 16 neurons each.<sup class="fnref" id="fnref:8"><a href="#fn:8" aria-label="Note 8">8</a></sup> There can be an arbitrary number of hidden layers in the network, and each layer can have an arbitrary number of neurons. Each neuron in the hidden layer will also have some kind of value, one that is calculated from the values of every single neuron in the previous layer. For the first hidden layer in our network, that means the 16 neurons in it calculate their values from the 784 values of the input layer. The calculation that each neuron performs is as follows:</p>
+
+<figure class="nn-fig" id="fig-4">
+  <div class="nn-box">
+    <div class="nn-scroll"><svg class="nn-svg" viewBox="0 0 720 480" role="img" aria-labelledby="fig4-cap" data-network>
+<text x="130" y="20" text-anchor="middle">Input layer</text>
+<text class="muted" x="130" y="38" text-anchor="middle">784 neurons</text>
+<text x="345" y="20" text-anchor="middle">Hidden layer 1</text>
+<text class="muted" x="345" y="38" text-anchor="middle">16 neurons</text>
+<text x="505" y="20" text-anchor="middle">Hidden layer 2</text>
+<text class="muted" x="505" y="38" text-anchor="middle">16 neurons</text>
+<text x="650" y="20" text-anchor="middle">Output layer</text>
+<text class="muted" x="650" y="38" text-anchor="middle">10 neurons</text>
+<path class="conn" d="M130,80L345,80M130,80L345,104M130,80L345,128M130,80L345,152M130,80L345,176M130,80L345,200M130,80L345,224M130,80L345,248M130,80L345,272M130,80L345,296M130,80L345,320M130,80L345,344M130,80L345,368M130,80L345,392M130,80L345,416M130,80L345,440M130,104L345,80M130,104L345,104M130,104L345,128M130,104L345,152M130,104L345,176M130,104L345,200M130,104L345,224M130,104L345,248M130,104L345,272M130,104L345,296M130,104L345,320M130,104L345,344M130,104L345,368M130,104L345,392M130,104L345,416M130,104L345,440M130,128L345,80M130,128L345,104M130,128L345,128M130,128L345,152M130,128L345,176M130,128L345,200M130,128L345,224M130,128L345,248M130,128L345,272M130,128L345,296M130,128L345,320M130,128L345,344M130,128L345,368M130,128L345,392M130,128L345,416M130,128L345,440M130,152L345,80M130,152L345,104M130,152L345,128M130,152L345,152M130,152L345,176M130,152L345,200M130,152L345,224M130,152L345,248M130,152L345,272M130,152L345,296M130,152L345,320M130,152L345,344M130,152L345,368M130,152L345,392M130,152L345,416M130,152L345,440M130,176L345,80M130,176L345,104M130,176L345,128M130,176L345,152M130,176L345,176M130,176L345,200M130,176L345,224M130,176L345,248M130,176L345,272M130,176L345,296M130,176L345,320M130,176L345,344M130,176L345,368M130,176L345,392M130,176L345,416M130,176L345,440M130,200L345,80M130,200L345,104M130,200L345,128M130,200L345,152M130,200L345,176M130,200L345,200M130,200L345,224M130,200L345,248M130,200L345,272M130,200L345,296M130,200L345,320M130,200L345,344M130,200L345,368M130,200L345,392M130,200L345,416M130,200L345,440M130,224L345,80M130,224L345,104M130,224L345,128M130,224L345,152M130,224L345,176M130,224L345,200M130,224L345,224M130,224L345,248M130,224L345,272M130,224L345,296M130,224L345,320M130,224L345,344M130,224L345,368M130,224L345,392M130,224L345,416M130,224L345,440M130,296L345,80M130,296L345,104M130,296L345,128M130,296L345,152M130,296L345,176M130,296L345,200M130,296L345,224M130,296L345,248M130,296L345,272M130,296L345,296M130,296L345,320M130,296L345,344M130,296L345,368M130,296L345,392M130,296L345,416M130,296L345,440M130,320L345,80M130,320L345,104M130,320L345,128M130,320L345,152M130,320L345,176M130,320L345,200M130,320L345,224M130,320L345,248M130,320L345,272M130,320L345,296M130,320L345,320M130,320L345,344M130,320L345,368M130,320L345,392M130,320L345,416M130,320L345,440M130,344L345,80M130,344L345,104M130,344L345,128M130,344L345,152M130,344L345,176M130,344L345,200M130,344L345,224M130,344L345,248M130,344L345,272M130,344L345,296M130,344L345,320M130,344L345,344M130,344L345,368M130,344L345,392M130,344L345,416M130,344L345,440M130,368L345,80M130,368L345,104M130,368L345,128M130,368L345,152M130,368L345,176M130,368L345,200M130,368L345,224M130,368L345,248M130,368L345,272M130,368L345,296M130,368L345,320M130,368L345,344M130,368L345,368M130,368L345,392M130,368L345,416M130,368L345,440M130,392L345,80M130,392L345,104M130,392L345,128M130,392L345,152M130,392L345,176M130,392L345,200M130,392L345,224M130,392L345,248M130,392L345,272M130,392L345,296M130,392L345,320M130,392L345,344M130,392L345,368M130,392L345,392M130,392L345,416M130,392L345,440M130,416L345,80M130,416L345,104M130,416L345,128M130,416L345,152M130,416L345,176M130,416L345,200M130,416L345,224M130,416L345,248M130,416L345,272M130,416L345,296M130,416L345,320M130,416L345,344M130,416L345,368M130,416L345,392M130,416L345,416M130,416L345,440M130,440L345,80M130,440L345,104M130,440L345,128M130,440L345,152M130,440L345,176M130,440L345,200M130,440L345,224M130,440L345,248M130,440L345,272M130,440L345,296M130,440L345,320M130,440L345,344M130,440L345,368M130,440L345,392M130,440L345,416M130,440L345,440M345,80L505,80M345,80L505,104M345,80L505,128M345,80L505,152M345,80L505,176M345,80L505,200M345,80L505,224M345,80L505,248M345,80L505,272M345,80L505,296M345,80L505,320M345,80L505,344M345,80L505,368M345,80L505,392M345,80L505,416M345,80L505,440M345,104L505,80M345,104L505,104M345,104L505,128M345,104L505,152M345,104L505,176M345,104L505,200M345,104L505,224M345,104L505,248M345,104L505,272M345,104L505,296M345,104L505,320M345,104L505,344M345,104L505,368M345,104L505,392M345,104L505,416M345,104L505,440M345,128L505,80M345,128L505,104M345,128L505,128M345,128L505,152M345,128L505,176M345,128L505,200M345,128L505,224M345,128L505,248M345,128L505,272M345,128L505,296M345,128L505,320M345,128L505,344M345,128L505,368M345,128L505,392M345,128L505,416M345,128L505,440M345,152L505,80M345,152L505,104M345,152L505,128M345,152L505,152M345,152L505,176M345,152L505,200M345,152L505,224M345,152L505,248M345,152L505,272M345,152L505,296M345,152L505,320M345,152L505,344M345,152L505,368M345,152L505,392M345,152L505,416M345,152L505,440M345,176L505,80M345,176L505,104M345,176L505,128M345,176L505,152M345,176L505,176M345,176L505,200M345,176L505,224M345,176L505,248M345,176L505,272M345,176L505,296M345,176L505,320M345,176L505,344M345,176L505,368M345,176L505,392M345,176L505,416M345,176L505,440M345,200L505,80M345,200L505,104M345,200L505,128M345,200L505,152M345,200L505,176M345,200L505,200M345,200L505,224M345,200L505,248M345,200L505,272M345,200L505,296M345,200L505,320M345,200L505,344M345,200L505,368M345,200L505,392M345,200L505,416M345,200L505,440M345,224L505,80M345,224L505,104M345,224L505,128M345,224L505,152M345,224L505,176M345,224L505,200M345,224L505,224M345,224L505,248M345,224L505,272M345,224L505,296M345,224L505,320M345,224L505,344M345,224L505,368M345,224L505,392M345,224L505,416M345,224L505,440M345,248L505,80M345,248L505,104M345,248L505,128M345,248L505,152M345,248L505,176M345,248L505,200M345,248L505,224M345,248L505,248M345,248L505,272M345,248L505,296M345,248L505,320M345,248L505,344M345,248L505,368M345,248L505,392M345,248L505,416M345,248L505,440M345,272L505,80M345,272L505,104M345,272L505,128M345,272L505,152M345,272L505,176M345,272L505,200M345,272L505,224M345,272L505,248M345,272L505,272M345,272L505,296M345,272L505,320M345,272L505,344M345,272L505,368M345,272L505,392M345,272L505,416M345,272L505,440M345,296L505,80M345,296L505,104M345,296L505,128M345,296L505,152M345,296L505,176M345,296L505,200M345,296L505,224M345,296L505,248M345,296L505,272M345,296L505,296M345,296L505,320M345,296L505,344M345,296L505,368M345,296L505,392M345,296L505,416M345,296L505,440M345,320L505,80M345,320L505,104M345,320L505,128M345,320L505,152M345,320L505,176M345,320L505,200M345,320L505,224M345,320L505,248M345,320L505,272M345,320L505,296M345,320L505,320M345,320L505,344M345,320L505,368M345,320L505,392M345,320L505,416M345,320L505,440M345,344L505,80M345,344L505,104M345,344L505,128M345,344L505,152M345,344L505,176M345,344L505,200M345,344L505,224M345,344L505,248M345,344L505,272M345,344L505,296M345,344L505,320M345,344L505,344M345,344L505,368M345,344L505,392M345,344L505,416M345,344L505,440M345,368L505,80M345,368L505,104M345,368L505,128M345,368L505,152M345,368L505,176M345,368L505,200M345,368L505,224M345,368L505,248M345,368L505,272M345,368L505,296M345,368L505,320M345,368L505,344M345,368L505,368M345,368L505,392M345,368L505,416M345,368L505,440M345,392L505,80M345,392L505,104M345,392L505,128M345,392L505,152M345,392L505,176M345,392L505,200M345,392L505,224M345,392L505,248M345,392L505,272M345,392L505,296M345,392L505,320M345,392L505,344M345,392L505,368M345,392L505,392M345,392L505,416M345,392L505,440M345,416L505,80M345,416L505,104M345,416L505,128M345,416L505,152M345,416L505,176M345,416L505,200M345,416L505,224M345,416L505,248M345,416L505,272M345,416L505,296M345,416L505,320M345,416L505,344M345,416L505,368M345,416L505,392M345,416L505,416M345,416L505,440M345,440L505,80M345,440L505,104M345,440L505,128M345,440L505,152M345,440L505,176M345,440L505,200M345,440L505,224M345,440L505,248M345,440L505,272M345,440L505,296M345,440L505,320M345,440L505,344M345,440L505,368M345,440L505,392M345,440L505,416M345,440L505,440M505,80L650,146M505,80L650,174M505,80L650,202M505,80L650,230M505,80L650,258M505,80L650,286M505,80L650,314M505,80L650,342M505,80L650,370M505,80L650,398M505,104L650,146M505,104L650,174M505,104L650,202M505,104L650,230M505,104L650,258M505,104L650,286M505,104L650,314M505,104L650,342M505,104L650,370M505,104L650,398M505,128L650,146M505,128L650,174M505,128L650,202M505,128L650,230M505,128L650,258M505,128L650,286M505,128L650,314M505,128L650,342M505,128L650,370M505,128L650,398M505,152L650,146M505,152L650,174M505,152L650,202M505,152L650,230M505,152L650,258M505,152L650,286M505,152L650,314M505,152L650,342M505,152L650,370M505,152L650,398M505,176L650,146M505,176L650,174M505,176L650,202M505,176L650,230M505,176L650,258M505,176L650,286M505,176L650,314M505,176L650,342M505,176L650,370M505,176L650,398M505,200L650,146M505,200L650,174M505,200L650,202M505,200L650,230M505,200L650,258M505,200L650,286M505,200L650,314M505,200L650,342M505,200L650,370M505,200L650,398M505,224L650,146M505,224L650,174M505,224L650,202M505,224L650,230M505,224L650,258M505,224L650,286M505,224L650,314M505,224L650,342M505,224L650,370M505,224L650,398M505,248L650,146M505,248L650,174M505,248L650,202M505,248L650,230M505,248L650,258M505,248L650,286M505,248L650,314M505,248L650,342M505,248L650,370M505,248L650,398M505,272L650,146M505,272L650,174M505,272L650,202M505,272L650,230M505,272L650,258M505,272L650,286M505,272L650,314M505,272L650,342M505,272L650,370M505,272L650,398M505,296L650,146M505,296L650,174M505,296L650,202M505,296L650,230M505,296L650,258M505,296L650,286M505,296L650,314M505,296L650,342M505,296L650,370M505,296L650,398M505,320L650,146M505,320L650,174M505,320L650,202M505,320L650,230M505,320L650,258M505,320L650,286M505,320L650,314M505,320L650,342M505,320L650,370M505,320L650,398M505,344L650,146M505,344L650,174M505,344L650,202M505,344L650,230M505,344L650,258M505,344L650,286M505,344L650,314M505,344L650,342M505,344L650,370M505,344L650,398M505,368L650,146M505,368L650,174M505,368L650,202M505,368L650,230M505,368L650,258M505,368L650,286M505,368L650,314M505,368L650,342M505,368L650,370M505,368L650,398M505,392L650,146M505,392L650,174M505,392L650,202M505,392L650,230M505,392L650,258M505,392L650,286M505,392L650,314M505,392L650,342M505,392L650,370M505,392L650,398M505,416L650,146M505,416L650,174M505,416L650,202M505,416L650,230M505,416L650,258M505,416L650,286M505,416L650,314M505,416L650,342M505,416L650,370M505,416L650,398M505,440L650,146M505,440L650,174M505,440L650,202M505,440L650,230M505,440L650,258M505,440L650,286M505,440L650,314M505,440L650,342M505,440L650,370M505,440L650,398"/>
+<path class="hl" d="M130,80L345,80M130,104L345,80M130,128L345,80M130,152L345,80M130,176L345,80M130,200L345,80M130,224L345,80M130,296L345,80M130,320L345,80M130,344L345,80M130,368L345,80M130,392L345,80M130,416L345,80M130,440L345,80" data-hl/>
+<text class="wlabel" x="248.2" y="76.0" text-anchor="middle" data-w="0" data-t="0.55">w<tspan class="sub" dy="4">1</tspan></text>
+<text class="wlabel" x="211.7" y="90.9" text-anchor="middle" data-w="1" data-t="0.38">w<tspan class="sub" dy="4">2</tspan></text>
+<text class="wlabel" x="220.3" y="284.8" text-anchor="middle" data-w="13" data-t="0.42">w<tspan class="sub" dy="4">784</tspan></text>
+<circle class="node in" cx="130" cy="80" r="9" style="fill:rgb(0,0,0)"/>
+<text class="var" x="112" y="84" text-anchor="end">a<tspan class="sub" dy="4">1</tspan></text>
+<circle class="node in" cx="130" cy="104" r="9" style="fill:rgb(128,128,128)"/>
+<text class="var" x="112" y="108" text-anchor="end">a<tspan class="sub" dy="4">2</tspan></text>
+<circle class="node in" cx="130" cy="128" r="9" style="fill:rgb(128,128,128)"/>
+<text class="var" x="112" y="132" text-anchor="end">a<tspan class="sub" dy="4">3</tspan></text>
+<circle class="node in" cx="130" cy="152" r="9" style="fill:rgb(0,0,0)"/>
+<text class="var" x="112" y="156" text-anchor="end">a<tspan class="sub" dy="4">4</tspan></text>
+<circle class="node in" cx="130" cy="176" r="9" style="fill:rgb(0,0,0)"/>
+<text class="var" x="112" y="180" text-anchor="end">a<tspan class="sub" dy="4">5</tspan></text>
+<circle class="node in" cx="130" cy="200" r="9" style="fill:rgb(128,128,128)"/>
+<text class="var" x="112" y="204" text-anchor="end">a<tspan class="sub" dy="4">6</tspan></text>
+<circle class="node in" cx="130" cy="224" r="9" style="fill:rgb(51,51,51)"/>
+<text class="var" x="112" y="228" text-anchor="end">a<tspan class="sub" dy="4">7</tspan></text>
+<circle class="node in" cx="130" cy="296" r="9" style="fill:rgb(204,204,204)"/>
+<text class="var" x="112" y="300" text-anchor="end">a<tspan class="sub" dy="4">778</tspan></text>
+<circle class="node in" cx="130" cy="320" r="9" style="fill:rgb(128,128,128)"/>
+<text class="var" x="112" y="324" text-anchor="end">a<tspan class="sub" dy="4">779</tspan></text>
+<circle class="node in" cx="130" cy="344" r="9" style="fill:rgb(0,0,0)"/>
+<text class="var" x="112" y="348" text-anchor="end">a<tspan class="sub" dy="4">780</tspan></text>
+<circle class="node in" cx="130" cy="368" r="9" style="fill:rgb(128,128,128)"/>
+<text class="var" x="112" y="372" text-anchor="end">a<tspan class="sub" dy="4">781</tspan></text>
+<circle class="node in" cx="130" cy="392" r="9" style="fill:rgb(0,0,0)"/>
+<text class="var" x="112" y="396" text-anchor="end">a<tspan class="sub" dy="4">782</tspan></text>
+<circle class="node in" cx="130" cy="416" r="9" style="fill:rgb(255,255,255)"/>
+<text class="var" x="112" y="420" text-anchor="end">a<tspan class="sub" dy="4">783</tspan></text>
+<circle class="node in" cx="130" cy="440" r="9" style="fill:rgb(51,51,51)"/>
+<text class="var" x="112" y="444" text-anchor="end">a<tspan class="sub" dy="4">784</tspan></text>
+<text class="dots" x="130" y="262" text-anchor="middle">⋮</text>
+<circle class="node h1 sel" cx="345" cy="80" r="9" data-j="1" tabindex="0" role="button" aria-label="Show the connections of neuron 1 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="104" r="9" data-j="2" tabindex="0" role="button" aria-label="Show the connections of neuron 2 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="128" r="9" data-j="3" tabindex="0" role="button" aria-label="Show the connections of neuron 3 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="152" r="9" data-j="4" tabindex="0" role="button" aria-label="Show the connections of neuron 4 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="176" r="9" data-j="5" tabindex="0" role="button" aria-label="Show the connections of neuron 5 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="200" r="9" data-j="6" tabindex="0" role="button" aria-label="Show the connections of neuron 6 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="224" r="9" data-j="7" tabindex="0" role="button" aria-label="Show the connections of neuron 7 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="248" r="9" data-j="8" tabindex="0" role="button" aria-label="Show the connections of neuron 8 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="272" r="9" data-j="9" tabindex="0" role="button" aria-label="Show the connections of neuron 9 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="296" r="9" data-j="10" tabindex="0" role="button" aria-label="Show the connections of neuron 10 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="320" r="9" data-j="11" tabindex="0" role="button" aria-label="Show the connections of neuron 11 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="344" r="9" data-j="12" tabindex="0" role="button" aria-label="Show the connections of neuron 12 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="368" r="9" data-j="13" tabindex="0" role="button" aria-label="Show the connections of neuron 13 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="392" r="9" data-j="14" tabindex="0" role="button" aria-label="Show the connections of neuron 14 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="416" r="9" data-j="15" tabindex="0" role="button" aria-label="Show the connections of neuron 15 in hidden layer 1"/>
+<circle class="node h1" cx="345" cy="440" r="9" data-j="16" tabindex="0" role="button" aria-label="Show the connections of neuron 16 in hidden layer 1"/>
+<text class="var" x="345" y="64" text-anchor="middle" data-sel-label>a<tspan class="sub" dy="4">1</tspan><tspan class="sup" dy="-11">(1)</tspan></text>
+<circle class="node" cx="505" cy="80" r="9"/>
+<circle class="node" cx="505" cy="104" r="9"/>
+<circle class="node" cx="505" cy="128" r="9"/>
+<circle class="node" cx="505" cy="152" r="9"/>
+<circle class="node" cx="505" cy="176" r="9"/>
+<circle class="node" cx="505" cy="200" r="9"/>
+<circle class="node" cx="505" cy="224" r="9"/>
+<circle class="node" cx="505" cy="248" r="9"/>
+<circle class="node" cx="505" cy="272" r="9"/>
+<circle class="node" cx="505" cy="296" r="9"/>
+<circle class="node" cx="505" cy="320" r="9"/>
+<circle class="node" cx="505" cy="344" r="9"/>
+<circle class="node" cx="505" cy="368" r="9"/>
+<circle class="node" cx="505" cy="392" r="9"/>
+<circle class="node" cx="505" cy="416" r="9"/>
+<circle class="node" cx="505" cy="440" r="9"/>
+<circle class="node" cx="650" cy="146" r="11"/>
+<text x="672" y="151">0</text>
+<circle class="node" cx="650" cy="174" r="11"/>
+<text x="672" y="179">1</text>
+<circle class="node" cx="650" cy="202" r="11"/>
+<text x="672" y="207">2</text>
+<circle class="node" cx="650" cy="230" r="11"/>
+<text x="672" y="235">3</text>
+<circle class="node" cx="650" cy="258" r="11"/>
+<text x="672" y="263">4</text>
+<circle class="node" cx="650" cy="286" r="11"/>
+<text x="672" y="291">5</text>
+<circle class="node" cx="650" cy="314" r="11"/>
+<text x="672" y="319">6</text>
+<circle class="node" cx="650" cy="342" r="11"/>
+<text x="672" y="347">7</text>
+<circle class="node" cx="650" cy="370" r="11"/>
+<text x="672" y="375">8</text>
+<circle class="node" cx="650" cy="398" r="11"/>
+<text x="672" y="403">9</text>
+</svg></div><p class="nn-hint">Scroll sideways to see the whole diagram →</p>
+    <div class="formula" data-formula>
+  <p class="formula-lead">Value of the highlighted neuron (neuron <span data-j>1</span> in hidden layer 1):</p>
+  <p class="formula-main"><i>a</i><sub data-j>1</sub><sup>(1)</sup> = σ( <i>w</i><sub>1</sub><i>a</i><sub>1</sub> + <i>w</i><sub>2</sub><i>a</i><sub>2</sub> + <i>w</i><sub>3</sub><i>a</i><sub>3</sub> + … + <i>w</i><sub>784</sub><i>a</i><sub>784</sub> + <i>b</i> )</p>
+  <p>= σ( Σ <i>w</i><sub>i</sub><i>a</i><sub>i</sub> + <i>b</i> ), summed over all 784 inputs</p>
+  <p class="muted"><i>a</i> = input values, <i>w</i> = weights, <i>b</i> = bias, σ = activation function</p>
+</div>
+    <div class="nn-lab" data-neuron-lab>
+  <p class="nn-lab-title">Try it: one neuron with three inputs</p>
+  <div class="nn-lab-grid">
+    <label><span class="v">a<sub>1</sub></span><input type="range" min="0" max="1" step="0.05" value="0.9" data-k="a1"></label><output data-o="a1">0.90</output>
+    <label><span class="v">w<sub>1</sub></span><input type="range" min="-2" max="2" step="0.1" value="1.2" data-k="w1"></label><output data-o="w1">1.20</output>
+    <label><span class="v">a<sub>2</sub></span><input type="range" min="0" max="1" step="0.05" value="0.2" data-k="a2"></label><output data-o="a2">0.20</output>
+    <label><span class="v">w<sub>2</sub></span><input type="range" min="-2" max="2" step="0.1" value="-0.8" data-k="w2"></label><output data-o="w2">−0.80</output>
+    <label><span class="v">a<sub>3</sub></span><input type="range" min="0" max="1" step="0.05" value="0.6" data-k="a3"></label><output data-o="a3">0.60</output>
+    <label><span class="v">w<sub>3</sub></span><input type="range" min="-2" max="2" step="0.1" value="0.5" data-k="w3"></label><output data-o="w3">0.50</output>
+    <label><span class="v">b</span><input type="range" min="-2" max="2" step="0.1" value="-0.3" data-k="b"></label><output data-o="b">−0.30</output>
+  </div>
+  <fieldset class="nn-radio"><legend>Activation function</legend>
+    <label><input type="radio" name="act" value="relu" checked> ReLU</label>
+    <label><input type="radio" name="act" value="none"> None (linear)</label>
+  </fieldset>
+  <div class="nn-lab-out">
+    <p class="nn-lab-math" aria-live="polite" data-math>z = w₁a₁ + w₂a₂ + w₃a₃ + b = 0.92<br>output = ReLU(z) = 0.92</p>
+    <svg class="nn-svg nn-plot" viewBox="0 0 220 130" data-plot aria-hidden="true"></svg>
+  </div>
+</div>
+  </div>
+  <figcaption id="fig4-cap"><span class="fig-no">Fig. 4</span> What one neuron calculates. Highlighted: the connections into the first neuron of hidden layer 1, which weighs every one of the 784 inputs. <span class="credit">Interactive: select another neuron in hidden layer 1, or adjust the three-input neuron below.</span></figcaption>
+</figure>
+
+<p>Each neuron has its own weight for every input, and multiplies each input by its weight. These multiplied values are then summed together. A bias is then added to this sum. We then pass this through an activation function. This function can be something like <strong>ReLU</strong>, which gives a zero when the input is anything less than zero, but is equal to the input for all input values above zero. The reason we need an activation function is that otherwise all the layers could just be described by a single linear function, which is undesirable when you want to approximate the complicated functions describing real-world data.<sup class="fnref" id="fnref:9"><a href="#fn:9" aria-label="Note 9">9</a></sup> Every neuron in the hidden layers will have its own set of weights and biases. The final hidden layer will feed into an output layer.</p>
+
+<p>Our <strong>output layer</strong> has 10 neurons, each of which corresponds to one of the 10 digits. The neurons in this layer complete the same mathematical operation as the neurons in the hidden layers, taking a weighted sum, adding a bias, then inputting the resulting value into an activation function. However, since we’d like our output to be a probability distribution of which digits are most likely to be the one in the image, we use <strong>softmax</strong> as the activation function.<sup class="fnref" id="fnref:10"><a href="#fn:10" aria-label="Note 10">10</a></sup> This turns the raw values we get into a valid probability distribution, with properties such as all of the values summing to 1 and no negative values. This is important, since it doesn’t make sense for a given digit to be -2% or 120% likely.</p>
+
+<figure class="nn-fig" id="fig-5">
+  <div class="nn-box" data-softmax>
+    <noscript><p>Raw outputs z for digits 0–9: −1.2, 0.3, 1.1, 2.0, −0.5, 0.8, −2.1, 4.2, 1.5, 0.6. Exponentiated (e<sup>z</sup>): 0.30, 1.3, 3.0, 7.4, 0.61, 2.2, 0.12, 66.7, 4.5, 1.8, summing to 88.0. Divided by the sum, the probabilities are &lt;0.01, 0.02, 0.03, 0.08, 0.01, 0.03, &lt;0.01, 0.76, 0.05, 0.02, which sum to 1.</p></noscript>
+  </div>
+  <figcaption id="fig5-cap"><span class="fig-no">Fig. 5</span> Softmax turns the output layer’s raw values into probabilities: exponentiate each value, then divide by the sum. <span class="credit">Interactive: drag a bar in the top chart (or select it and use the arrow keys), and pick the correct digit to see the cross-entropy loss.</span></figcaption>
+</figure>
+
+<p>We can now imagine the MLP as one big function that takes in 784 inputs and spits out 10 outputs, with its weights and biases acting as the constants in the function. Seeing this, two key questions come to mind. Firstly, why does the MLP’s particular structure lend itself to recognizing digits, as well as other complex objects? Secondly, how do we find weights and biases that lead to the MLP effectively recognizing digits and other complex objects?</p>
+
+<p>The first question can be answered through a half-true story. A network with well-tuned parameters could theoretically break down the image into something like horizontal, vertical and diagonal edges in its first hidden layer. For instance, a neuron that detects horizontal edges at the very top of the image might set the weights corresponding to those pixels to very high values, while pixels at the bottom of the image have weights with values close to zero. The second hidden layer might detect larger features, like circles or long lines, which would be composed of combinations of edges. The output layer would then see which combination of activations occurs in the second hidden layer and determine which digit it’s likely to be, since digits are composed of unique features. For example, a 6 is composed of a circle at the bottom and a diagonal line at the top, while a 7 is composed of a diagonal line in the center and a horizontal line on top. This is an explanation that is intuitive to humans.</p>
+
+<figure class="nn-fig" id="fig-6">
+  <div class="nn-box features">
+  <p class="features-title">(a) The intuitive story: how we might imagine the network recognises a 9</p>
+  <div class="features-flow">
+    <div class="ff-col"><p>Input image</p><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-input.png' | relative_url }}" alt="A handwritten 9 from MNIST" width="140" height="140" loading="lazy" decoding="async"></div>
+    <div class="ff-arrow" aria-hidden="true">→</div>
+    <div class="ff-col"><p>Hidden layer 1:<br>small strokes</p><div class="ff-strokes"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-1.png' | relative_url }}" alt="The 9 with one small stroke highlighted (1 of 6)" width="86" height="86" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-2.png' | relative_url }}" alt="The 9 with one small stroke highlighted (2 of 6)" width="86" height="86" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-3.png' | relative_url }}" alt="The 9 with one small stroke highlighted (3 of 6)" width="86" height="86" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-4.png' | relative_url }}" alt="The 9 with one small stroke highlighted (4 of 6)" width="86" height="86" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-5.png' | relative_url }}" alt="The 9 with one small stroke highlighted (5 of 6)" width="86" height="86" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-stroke-6.png' | relative_url }}" alt="The 9 with one small stroke highlighted (6 of 6)" width="86" height="86" loading="lazy" decoding="async"></div></div>
+    <div class="ff-arrow" aria-hidden="true">→</div>
+    <div class="ff-col"><p>Hidden layer 2:<br>loops and lines</p>
+      <figure class="ff-feature"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-loop.png' | relative_url }}" alt="The 9 with its loop highlighted" width="104" height="104" loading="lazy" decoding="async"><figcaption>loop</figcaption></figure>
+      <figure class="ff-feature"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/a-line.png' | relative_url }}" alt="The 9 with its vertical line highlighted" width="104" height="104" loading="lazy" decoding="async"><figcaption>line</figcaption></figure>
+    </div>
+    <div class="ff-arrow" aria-hidden="true">→</div>
+    <div class="ff-col"><p>Output</p><div class="ff-digit">9</div></div>
+  </div>
+  <hr class="features-rule">
+  <p class="features-title">(b) What hidden layer 1 actually learns: the weights of its 16 neurons after training</p>
+  <div class="weights-grid"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-01.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 1, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-02.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 2, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-03.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 3, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-04.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 4, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-05.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 5, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-06.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 6, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-07.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 7, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-08.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 8, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-09.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 9, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-10.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 10, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-11.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 11, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-12.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 12, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-13.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 13, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-14.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 14, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-15.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 15, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"><img src="{{ '/assets/blog/ai-fundamentals-neural-networks/b-weights-16.png' | relative_url }}" alt="Learned incoming weights of hidden-layer-1 neuron 16, shown as a 28 by 28 image" width="96" height="96" loading="lazy" decoding="async"></div>
+  <p class="features-note">Each square shows one neuron’s 784 incoming weights, laid out as a 28 × 28 image. White = positive weight (a bright pixel here raises the neuron’s value), black = negative, grey ≈ 0.</p>
+  <p class="features-note muted">Network: 784–16–16–10 MLP trained on 50,000 MNIST images; 95.5% accuracy on 10,000 held-out images.</p>
+</div>
+  <figcaption id="fig6-cap"><span class="fig-no">Fig. 6</span> The intuitive story of what a trained network detects, against the weights it actually learns.</figcaption>
+</figure>
+
+<p>The reality is somewhat more complex. When we train actual neural networks, the activations in the hidden layers are not what a human would expect at all.<sup class="fnref" id="fnref:11"><a href="#fn:11" aria-label="Note 11">11</a></sup> There is no neat, comprehensible structure to the features that are actually detected, only the activations and weights that result in the highest probability of guessing the digit correctly. But it’s still useful to think of neural networks as recognizing structure and features in data, just not necessarily features that are intuitive to humans.</p>
+
+<p>This naturally leads us to ask what process actually sets the messy weights and biases in the network. We have 784 input neurons, 2 hidden layers with 16 neurons each and 10 output neurons. We can count the number of parameters to set like this:</p>
+
+<p class="param-count"><em>Input to hidden layer connections (weights): 784 x 16 = 12,544</em><br>
+<em>Hidden layer to hidden layer connections (weights): 16 x 16 = 256</em><br>
+<em>Hidden layer to output layer connections (weights): 16 x 10 = 160</em><br>
+<em>Biases: 16 + 16 + 10 = 42</em><br>
+<em>Total parameter count: 12,544 + 256 + 160 + 42 = <strong>13,002</strong></em></p>
+
+<p>It’s apparent that there are too many parameters to fine-tune manually. Therefore we need an algorithm which allows us to adjust these parameters until the network gets good at detecting digits. The first step towards that is an actual measure of how good the network is at detection. The measure used is called <strong>cross-entropy loss</strong>.<sup class="fnref" id="fnref:12"><a href="#fn:12" aria-label="Note 12">12</a></sup> We take an image, feed it into the neural network and find the likelihood it assigns to the correct answer, then calculate its negative logarithm. If we had an image of a “7” and the network assigned it a probability of 1.0 of being a 7, the loss would be 0. If the probability was 0.76, the loss would be 0.27. And if the probability was 0.05, the loss would be 3.0. The more confidently correct the network is, the lower the loss. The more confidently incorrect the network is, the higher the loss.</p>
+
+<p>Now that we have a measure of how good the network is at predicting digits, we need to figure out a process that adjusts its parameters in a way that minimizes the loss. This is called <strong>gradient descent</strong>.<sup class="fnref" id="fnref:13"><a href="#fn:13" aria-label="Note 13">13</a></sup> Imagine a function with the 13,002 parameters as inputs and the network’s cross-entropy loss as the output. It’s computationally infeasible to graph the entire function, but it is possible to find its slope at a given point. Gradient descent takes steps in the direction where the slope of this function is negative, recomputes the slope after the step and then keeps taking steps downwards. In practice, you do <strong>stochastic gradient descent</strong>, where you estimate the slope from small batches of training data instead of the entire dataset.<sup class="fnref" id="fnref:14"><a href="#fn:14" aria-label="Note 14">14</a></sup> The steps are noisier, but it’s much cheaper to compute.</p>
+
+<figure class="nn-fig" id="fig-7">
+  <div class="nn-box" data-gd>
+    <noscript><p>(a) With one weight: find the slope of the loss at the current point, take a step downhill, and repeat until reaching the minimum. (b) With two weights, the loss is a landscape seen from above, with contour lines joining points of equal loss. Gradient descent on the whole dataset takes smooth steps to the minimum; stochastic gradient descent on small random batches takes noisier steps.</p></noscript>
+  </div>
+  <figcaption id="fig7-cap"><span class="fig-no">Fig. 7</span> Gradient descent. <span class="credit">Interactive: click either chart to choose a starting point, then step or run; try a larger learning rate to see the steps overshoot.</span></figcaption>
+</figure>
+
+<p>Doing any form of gradient descent the naive way, where you wiggle each parameter’s value individually and see how it affects the loss, is very computationally expensive. Instead, you do backpropagation, where you see how much each neuron in the previous layer contributed to the loss at the current neuron and then propagate that all the way back to the first layer. This allows you to compute the gradient about as cheaply as a forward pass of the neural network, making it computationally feasible to train larger neural networks.<sup class="fnref" id="fnref:15"><a href="#fn:15" aria-label="Note 15">15</a></sup></p>
+
+<p>What we’ve learned in this section has non-trivial implications for current AI models and their development. For instance, the fact that training loss is a verifiable metric has implications for whether models can be post-trained to be good at machine learning research. Another is the idea that neural networks <strong>should</strong> be trying to recognize features and structures in their input data to generate accurate outputs. Finally, there’s the fact that models do not necessarily “understand” the data they process. They might be internalizing some kind of pattern that helps minimize loss during training, but these patterns are not necessarily related to any kind of humanly understood notions relating to digits or writing. This could even involve exploiting flaws in the training data, such as a particular quirk in how the dataset creators drew “7”s that the rest of humanity doesn’t really have when writing “7”.<sup class="fnref" id="fnref:16"><a href="#fn:16" aria-label="Note 16">16</a></sup></p>
+
+<p>The next essay will describe the neural network architecture that modern large language models actually use, the transformer architecture,<sup class="fnref" id="fnref:17"><a href="#fn:17" aria-label="Note 17">17</a></sup> which combines MLPs, networks called “attention blocks” and normalization steps. It will also explain how LLMs encode the language data they process, which is somewhat different from how the simple MLP in this essay encodes vision data.</p>
+
+<p>I also have to mention that this essay is <strong>heavily</strong> based on 3Blue1Brown’s Deep Learning series.<sup class="fnref" id="fnref:18"><a href="#fn:18" aria-label="Note 18">18</a></sup> If you want an even deeper and more intuitive explanation of the concepts presented here, please check it out. I mostly wrote it because a ~1,600-word essay might be easier to get through than ~60 minutes of videos for a certain friend of mine. I also want to give that friend a big nod of appreciation for giving me the motivation to start writing this series of essays.</p>
+
+<section class="notes" aria-labelledby="notes">
+<h2 id="notes">Notes</h2>
+<ol class="footnotes">
+  <li id="fn:1">Kakaes, “Why the Legendary Erdős Problems Are Falling to AI”; Feng et al., “Semi-Autonomous Mathematics Discovery with Gemini.”&nbsp;<a class="fnback" href="#fnref:1" aria-label="Back to text for note 1">↩</a></li>
+  <li id="fn:2">Anthropic, “Disrupting the First Reported AI-Orchestrated Cyber Espionage Campaign.”&nbsp;<a class="fnback" href="#fnref:2" aria-label="Back to text for note 2">↩</a></li>
+  <li id="fn:3">Kokotajlo et al., <em>AI 2027</em>.&nbsp;<a class="fnback" href="#fnref:3" aria-label="Back to text for note 3">↩</a></li>
+  <li id="fn:4">METR, “Task-Completion Time Horizons of Frontier AI Models,” which is also the source of Fig. 1; the method is described in Kwa et al., “Measuring AI Ability to Complete Long Software Tasks.”&nbsp;<a class="fnback" href="#fnref:4" aria-label="Back to text for note 4">↩</a></li>
+  <li id="fn:5">Rosenblatt, “The Perceptron,” 386–408, which introduced the perceptron as a model of how the brain might store information and recognise patterns.&nbsp;<a class="fnback" href="#fnref:5" aria-label="Back to text for note 5">↩</a></li>
+  <li id="fn:6">Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 6, “Deep Feedforward Networks,” which introduces multilayer perceptrons as the basic deep learning model.&nbsp;<a class="fnback" href="#fnref:6" aria-label="Back to text for note 6">↩</a></li>
+  <li id="fn:7">LeCun, Cortes and Burges, “The MNIST Database of Handwritten Digits.” The 70,000 images are split into a 60,000-image training set and a 10,000-image test set, and were derived from handwriting samples collected by NIST.&nbsp;<a class="fnback" href="#fnref:7" aria-label="Back to text for note 7">↩</a></li>
+  <li id="fn:8">This 784–16–16–10 network is the same example used in 3Blue1Brown, “But what is a neural network?,” chapter 1 of its deep learning series.&nbsp;<a class="fnback" href="#fnref:8" aria-label="Back to text for note 8">↩</a></li>
+  <li id="fn:9">Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 6, on rectified linear units and on why stacking layers without a nonlinear activation function still produces a linear function.&nbsp;<a class="fnback" href="#fnref:9" aria-label="Back to text for note 9">↩</a></li>
+  <li id="fn:10">Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 6, on softmax output units.&nbsp;<a class="fnback" href="#fnref:10" aria-label="Back to text for note 10">↩</a></li>
+  <li id="fn:11">3Blue1Brown, “Gradient descent, how neural networks learn,” chapter 2 of its deep learning series, which looks at the weights such a network actually learns.&nbsp;<a class="fnback" href="#fnref:11" aria-label="Back to text for note 11">↩</a></li>
+  <li id="fn:12">Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 6, on cross-entropy cost functions.&nbsp;<a class="fnback" href="#fnref:12" aria-label="Back to text for note 12">↩</a></li>
+  <li id="fn:13">Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 4, “Numerical Computation,” on gradient-based optimisation.&nbsp;<a class="fnback" href="#fnref:13" aria-label="Back to text for note 13">↩</a></li>
+  <li id="fn:14">Robbins and Monro, “A Stochastic Approximation Method”; Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 8, “Optimization for Training Deep Models,” on stochastic gradient descent.&nbsp;<a class="fnback" href="#fnref:14" aria-label="Back to text for note 14">↩</a></li>
+  <li id="fn:15">Rumelhart, Hinton and Williams, “Learning Representations by Back-Propagating Errors”; Goodfellow, Bengio and Courville, <em>Deep Learning</em>, ch. 6, on back-propagation and its computational cost.&nbsp;<a class="fnback" href="#fnref:15" aria-label="Back to text for note 15">↩</a></li>
+  <li id="fn:16">For a survey of networks that learn unintended shortcuts in their training data, see Geirhos et al., “Shortcut Learning in Deep Neural Networks.”&nbsp;<a class="fnback" href="#fnref:16" aria-label="Back to text for note 16">↩</a></li>
+  <li id="fn:17">Vaswani et al., “Attention Is All You Need.”&nbsp;<a class="fnback" href="#fnref:17" aria-label="Back to text for note 17">↩</a></li>
+  <li id="fn:18">3Blue1Brown, “Neural Networks.”&nbsp;<a class="fnback" href="#fnref:18" aria-label="Back to text for note 18">↩</a></li>
+</ol>
+</section>
+
+<section class="bibliography" aria-labelledby="bibliography">
+<h2 id="bibliography">Bibliography</h2>
+<ul>
+  <li>3Blue1Brown (Grant Sanderson). “Neural Networks.” Deep learning video series. <a href="https://www.3blue1brown.com/topics/neural-networks">https://www.3blue1brown.com/topics/neural-networks</a>.</li>
+  <li>Anthropic. “Disrupting the First Reported AI-Orchestrated Cyber Espionage Campaign.” November 13, 2025. <a href="https://www.anthropic.com/news/disrupting-AI-espionage">https://www.anthropic.com/news/disrupting-AI-espionage</a>.</li>
+  <li>Feng, Tony, Trieu Trinh, Garrett Bingham, et al. “Semi-Autonomous Mathematics Discovery with Gemini: A Case Study on the Erdős Problems.” arXiv:2601.22401, 2026. <a href="https://arxiv.org/abs/2601.22401">https://arxiv.org/abs/2601.22401</a>.</li>
+  <li>Geirhos, Robert, Jörn-Henrik Jacobsen, Claudio Michaelis, Richard Zemel, Wieland Brendel, Matthias Bethge, and Felix A. Wichmann. “Shortcut Learning in Deep Neural Networks.” <em>Nature Machine Intelligence</em> 2 (2020): 665–673. <a href="https://arxiv.org/abs/2004.07780">https://arxiv.org/abs/2004.07780</a>.</li>
+  <li>Goodfellow, Ian, Yoshua Bengio, and Aaron Courville. <em>Deep Learning</em>. Cambridge, MA: MIT Press, 2016. <a href="https://www.deeplearningbook.org/">https://www.deeplearningbook.org/</a>.</li>
+  <li>Kakaes, Konstantin. “Why the Legendary Erdős Problems Are Falling to AI.” <em>Quanta Magazine</em>, August 3, 2026. <a href="https://www.quantamagazine.org/why-the-legendary-erdos-problems-are-falling-to-ai-20260803/">https://www.quantamagazine.org/why-the-legendary-erdos-problems-are-falling-to-ai-20260803/</a>.</li>
+  <li>Kokotajlo, Daniel, Scott Alexander, Thomas Larsen, Eli Lifland, and Romeo Dean. <em>AI 2027</em>. AI Futures Project, April 3, 2025. <a href="https://ai-2027.com/">https://ai-2027.com/</a>.</li>
+  <li>Kwa, Thomas, Ben West, Joel Becker, et al. “Measuring AI Ability to Complete Long Software Tasks.” NeurIPS 2025. arXiv:2503.14499. <a href="https://arxiv.org/abs/2503.14499">https://arxiv.org/abs/2503.14499</a>.</li>
+  <li>LeCun, Yann, Corinna Cortes, and Christopher J. C. Burges. “The MNIST Database of Handwritten Digits.” <a href="https://yann.lecun.com/exdb/mnist/">https://yann.lecun.com/exdb/mnist/</a>.</li>
+  <li>METR. “Task-Completion Time Horizons of Frontier AI Models.” Last updated September 8, 2026. <a href="https://metr.org/time-horizons/">https://metr.org/time-horizons/</a>.</li>
+  <li>Robbins, Herbert, and Sutton Monro. “A Stochastic Approximation Method.” <em>Annals of Mathematical Statistics</em> 22, no. 3 (1951): 400–407. <a href="https://doi.org/10.1214/aoms/1177729586">https://doi.org/10.1214/aoms/1177729586</a>.</li>
+  <li>Rosenblatt, Frank. “The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.” <em>Psychological Review</em> 65, no. 6 (1958): 386–408. <a href="https://doi.org/10.1037/h0042519">https://doi.org/10.1037/h0042519</a>.</li>
+  <li>Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. “Learning Representations by Back-Propagating Errors.” <em>Nature</em> 323 (1986): 533–536. <a href="https://doi.org/10.1038/323533a0">https://doi.org/10.1038/323533a0</a>.</li>
+  <li>Vaswani, Ashish, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, and Illia Polosukhin. “Attention Is All You Need.” <em>Advances in Neural Information Processing Systems</em> 30 (2017). <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</li>
+</ul>
+</section>

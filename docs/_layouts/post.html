@@ -24,3 +24,4 @@ layout: default
     <a href="{{ '/blog/' | relative_url }}">← All posts</a>
   </footer>
 </article>
+{% if page.js %}<script>{% include {{ page.js }} %}</script>{% endif %}
