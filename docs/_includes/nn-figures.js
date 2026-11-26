@@ -63,6 +63,7 @@
     var hl = svg.querySelector('[data-hl]');
     var label = svg.querySelector('[data-sel-label]');
     var wl = svg.querySelectorAll('[data-w]');
+    svg.appendChild(label);
     function select(node) {
       svg.querySelectorAll('.node.h1').forEach(function (n) { n.classList.remove('sel'); });
       node.classList.add('sel');
@@ -76,7 +77,8 @@
         t.setAttribute('x', (x0 + (hx - x0) * f).toFixed(1));
         t.setAttribute('y', (y0 + (hy - y0) * f - 4).toFixed(1));
       });
-      label.setAttribute('y', hy - 16);
+      label.setAttribute('x', hx + 15);
+      label.setAttribute('y', hy + 4);
       label.querySelector('.sub').textContent = node.dataset.j;
       fig.querySelectorAll('[data-j]').forEach(function (s) { if (s.tagName !== 'circle') s.textContent = node.dataset.j; });
     }
@@ -293,9 +295,13 @@
     for (var w = 0; w <= 5.6; w += 0.05) d += (d ? 'L' : 'M') + ax1(w).toFixed(1) + ',' + ay1(f1(w)).toFixed(1);
     el('path', { d: d, class: 'curve' }, A);
     el('text', { x: ax1(3), y: ay1(0) - 8, 'text-anchor': 'middle', class: 'muted' }, A, 'minimum');
-    var tangent = el('line', { class: 'tangent' }, A);
-    var pathA = el('path', { class: 'gd-path' }, A);
-    var dotsA = el('g', {}, A);
+    var defsA = el('defs', {}, A);
+    var cpA = el('clipPath', { id: 'gdclipA' }, defsA);
+    el('rect', { x: ax.x0 - 7, y: ax.y0 - 7, width: ax.x1 - ax.x0 + 14, height: ax.y1 - ax.y0 + 14 }, cpA);
+    var plotA = el('g', { 'clip-path': 'url(#gdclipA)' }, A);
+    var tangent = el('line', { class: 'tangent' }, plotA);
+    var pathA = el('path', { class: 'gd-path' }, plotA);
+    var dotsA = el('g', {}, plotA);
 
     // Panel (b) scales: unit square
     var bx = function (x) { return ax.x0 + x * (ax.x1 - ax.x0); };
@@ -317,17 +323,18 @@
     el('rect', { x: ax.x0, y: ax.y0, width: sx, height: sy, class: 'frame' }, B);
     el('text', { x: bx(C[0]) - 6, y: by(C[1]) + 5, class: 'cross', 'text-anchor': 'middle' }, B, '×');
     el('text', { x: bx(C[0]) + 10, y: by(C[1]) + 34, class: 'muted' }, B, 'minimum');
-    var gdLine = el('path', { class: 'gd-path' }, B);
-    var sgdLine = el('path', { class: 'sgd-path' }, B);
-    var startB_dot = el('circle', { r: 6, class: 'pt start' }, B);
-    var startB_lbl = el('text', { class: 'small' }, B, 'start');
-    var nowB = el('circle', { r: 4.5, class: 'pt' }, B);
-    var nowS = el('circle', { r: 3.5, class: 'pt sgd' }, B);
+    var plotB = el('g', { 'clip-path': 'url(#' + clipId + ')' }, B);
+    var gdLine = el('path', { class: 'gd-path' }, plotB);
+    var sgdLine = el('path', { class: 'sgd-path' }, plotB);
+    var startB_dot = el('circle', { r: 6, class: 'pt start' }, plotB);
+    var startB_lbl = el('text', { class: 'small halo' }, plotB, 'start');
+    var nowB = el('circle', { r: 4.5, class: 'pt' }, plotB);
+    var nowS = el('circle', { r: 3.5, class: 'pt sgd' }, plotB);
 
     var controls = document.createElement('div');
     controls.className = 'nn-controls';
     controls.innerHTML =
-      '<label>Learning rate <input type="range" min="0.05" max="2.2" step="0.05" value="0.3" data-lr></label>' +
+      '<label>Learning rate <input type="range" min="0.05" max="1.2" step="0.05" value="0.3" data-lr></label>' +
       '<output data-lr-out>0.30</output>' +
       '<button type="button" class="nn-btn" data-step>Step</button>' +
       '<button type="button" class="nn-btn" data-run>Run</button>' +
@@ -353,28 +360,38 @@
     var lrIn = controls.querySelector('[data-lr]'), lrOut = controls.querySelector('[data-lr-out]');
     var sgdIn = controls.querySelector('[data-sgd]');
     var startA = 0.6, startB = [0.06, 0.78];
-    var wA, histA, pB, histB, pS, histS, n, timer = null, seed = 7;
+    var wA, histA, pB, histB, pS, histS, n, halted, timer = null, seed = 7;
     function rand() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
     function gauss() { var u = 1 - rand(), v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
     function reset() {
       stop();
       wA = startA; histA = [wA]; pB = startB.slice(); histB = [pB.slice()]; pS = startB.slice(); histS = [pS.slice()];
-      n = 0; seed = 7; draw();
+      n = 0; seed = 7; halted = false; draw();
     }
+    // The learning-rate range (up to 1.2) and panel (b)'s scale (lr / 5) were chosen
+    // so both panels always stay on their charts while still showing overshoot.
     function step() {
+      if (halted) return;
       var lr = Number(lrIn.value);
-      wA = Math.max(-50, Math.min(50, wA - lr * g1(wA)));
+      wA = wA - lr * g1(wA);
       histA.push(wA);
-      var lr2 = lr / 4, g = g2(pB[0], pB[1]);
+      var lr2 = lr / 5, g = g2(pB[0], pB[1]);
       pB = [pB[0] - lr2 * g[0], pB[1] - lr2 * g[1]];
       histB.push(pB.slice());
       var gs = g2(pS[0], pS[1]);
-      pS = [pS[0] - lr2 * (gs[0] + 0.9 * gauss()), pS[1] - lr2 * (gs[1] + 0.9 * gauss())];
+      pS = [pS[0] - lr2 * (gs[0] + 0.45 * gauss()), pS[1] - lr2 * (gs[1] + 0.45 * gauss())];
       histS.push(pS.slice());
       n++;
+      // Safety stop: if a step ever leaves a chart, stop rather than draw wild lines
+      if (!isFinite(wA) || wA < -0.3 || wA > 5.9 || !isFinite(pB[0]) || !isFinite(pB[1]) ||
+          Math.abs(pB[0] - 0.5) > 0.75 || Math.abs(pB[1] - 0.5) > 0.75) {
+        halted = true;
+        stop();
+      }
       draw();
     }
-    function clampA(w) { return Math.max(-0.3, Math.min(5.9, w)); }
+    function clampA(w) { return isFinite(w) ? Math.max(-0.3, Math.min(5.9, w)) : (w > 0 ? 5.9 : -0.3); }
+    function fmtLoss(v) { return !isFinite(v) || v > 999 ? '> 999' : fmt(v, 3); }
     function draw() {
       // (a) path along the curve, with the tangent at the current point
       while (dotsA.firstChild) dotsA.removeChild(dotsA.firstChild);
@@ -385,12 +402,13 @@
         el('circle', { cx: x, cy: y, r: i === histA.length - 1 ? 6 : 4, class: i === 0 ? 'pt start' : 'pt' }, dotsA);
       });
       pathA.setAttribute('d', d);
-      var w = clampA(wA), s = g1(w), x0 = ax1(w - 0.8), x1 = ax1(w + 0.8);
+      var w = clampA(wA), s = Math.max(-8, Math.min(8, g1(w))), x0 = ax1(w - 0.8), x1 = ax1(w + 0.8);
       tangent.setAttribute('x1', x0); tangent.setAttribute('y1', ay1(f1(w) - 0.8 * s));
       tangent.setAttribute('x2', x1); tangent.setAttribute('y2', ay1(f1(w) + 0.8 * s));
       // (b) both paths
+      var cv = function (v) { return isFinite(v) ? Math.max(-0.5, Math.min(1.5, v)) : (v > 0 ? 1.5 : -0.5); };
       var toD = function (h) {
-        return h.map(function (p, i) { return (i ? 'L' : 'M') + bx(p[0]).toFixed(1) + ',' + by(p[1]).toFixed(1); }).join('');
+        return h.map(function (p, i) { return (i ? 'L' : 'M') + bx(cv(p[0])).toFixed(1) + ',' + by(cv(p[1])).toFixed(1); }).join('');
       };
       gdLine.setAttribute('d', toD(histB));
       sgdLine.setAttribute('d', sgdIn.checked ? toD(histS) : '');
@@ -401,10 +419,13 @@
       nowB.style.display = n ? '' : 'none';
       nowS.setAttribute('cx', bx(cl(pS[0]))); nowS.setAttribute('cy', by(cl(pS[1])));
       nowS.style.display = n && sgdIn.checked ? '' : 'none';
-      var diverging = !isFinite(f1(wA)) || Math.abs(wA - 3) > 6 || f2(pB[0], pB[1]) > 50;
-      readout.innerHTML = 'Step ' + n + ' · (a) w = ' + fmt(wA, 2) + ', loss = ' + fmt(f1(wA), 3) +
-        ' · (b) loss = ' + fmt(f2(pB[0], pB[1]), 3) +
-        (diverging ? ' · <strong>the steps are overshooting: lower the learning rate</strong>' : '');
+      // Overshooting: the last step jumped past the minimum in (a)
+      var k = histA.length;
+      var overshot = k > 1 && (histA[k - 1] - 3) * (histA[k - 2] - 3) < 0;
+      readout.innerHTML = 'Step ' + n + ' · (a) w = ' + (Math.abs(wA) > 999 ? '> 999' : fmt(wA, 2)) + ', loss = ' + fmtLoss(f1(wA)) +
+        ' · (b) loss = ' + fmtLoss(f2(pB[0], pB[1])) +
+        (halted ? ' · <strong>the steps left the chart: lower the learning rate and press Reset</strong>'
+          : overshot ? ' · <strong>that step overshot the minimum</strong>' : '');
     }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
     controls.querySelector('[data-step]').addEventListener('click', function () { stop(); step(); });

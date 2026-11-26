@@ -121,6 +121,13 @@
   stroke-width: 2.6;
 }
 
+.nn-svg .halo {
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
 .nn-svg .wlabel {
   paint-order: stroke;
   stroke: var(--paper);
@@ -506,6 +513,7 @@
 }
 
 .nn-svg.gd {
+  overflow: hidden;
   cursor: crosshair;
 }
 
